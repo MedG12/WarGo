@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1061003401193",
+    "project_id": "wargo-e9839",
+    "storage_bucket": "wargo-e9839.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061003401193:android:a241237bc958211e33dd78",
+        "android_client_info": {
+          "package_name": "com.example.wargo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5-Wle83FWzXfj4sfriLxRWF2kAU0oNq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
