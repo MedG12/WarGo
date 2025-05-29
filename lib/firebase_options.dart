@@ -41,8 +41,8 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD0KYho_quQ9ZHrEQp0z0zWbwspraJUaZ4',
-    appId: '1:1061003401193:web:4eb9c8ed68e88cdb33dd78',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY_WEB'),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_WEB'),
     messagingSenderId: '1061003401193',
     projectId: 'wargo-e9839',
     authDomain: 'wargo-e9839.firebaseapp.com',
@@ -50,16 +50,16 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB5-Wle83FWzXfj4sfriLxRWF2kAU0oNq0',
-    appId: '1:1061003401193:android:a241237bc958211e33dd78',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY_ANDROID'),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_ANDROID'),
     messagingSenderId: '1061003401193',
     projectId: 'wargo-e9839',
     storageBucket: 'wargo-e9839.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDuzOa5yaMomo2oc3mVQzl8I2K8orTSIxQ',
-    appId: '1:1061003401193:ios:0f1004bff594e17b33dd78',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY_IOS'),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_IOS'),
     messagingSenderId: '1061003401193',
     projectId: 'wargo-e9839',
     storageBucket: 'wargo-e9839.firebasestorage.app',
@@ -67,8 +67,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDuzOa5yaMomo2oc3mVQzl8I2K8orTSIxQ',
-    appId: '1:1061003401193:ios:0f1004bff594e17b33dd78',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY_MACOS'),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_MACOS'),
     messagingSenderId: '1061003401193',
     projectId: 'wargo-e9839',
     storageBucket: 'wargo-e9839.firebasestorage.app',
@@ -76,8 +76,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD0KYho_quQ9ZHrEQp0z0zWbwspraJUaZ4',
-    appId: '1:1061003401193:web:ed49a664b08eef5533dd78',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY_WINDOWS'),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_WINDOWS'),
     messagingSenderId: '1061003401193',
     projectId: 'wargo-e9839',
     authDomain: 'wargo-e9839.firebaseapp.com',

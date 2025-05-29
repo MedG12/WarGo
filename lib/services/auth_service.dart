@@ -1,20 +1,33 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wargo/services/user_service.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final _userService = UserService();
+
+  String? _role;
+  String? get role => _role;
 
   User? get currentUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  Future<void> _fetchRole() async {
+    if (currentUser != null) {
+      _role = await _userService.getRole(currentUser!.uid);
+      notifyListeners();
+    }
+  }
 
   // Sign Up
   Future<String?> signUp({
     required String email,
     required String password,
     required String name,
+    required String role,
   }) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
@@ -25,6 +38,21 @@ class AuthService extends ChangeNotifier {
       // Update display name
       await result.user?.updateDisplayName(name);
       await result.user?.reload();
+
+      // Create user document
+      try {
+        await _userService.createUser(
+          uid: result.user!.uid,
+          name: name,
+          email: email,
+          role: role,
+        );
+      } catch (e) {
+        return 'error$e';
+      }
+
+      //Set role
+      await _fetchRole();
 
       notifyListeners();
       return null; // Success
@@ -50,10 +78,8 @@ class AuthService extends ChangeNotifier {
     required String password,
   }) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+
       notifyListeners();
       return null; // Success
     } on FirebaseAuthException catch (e) {
@@ -74,20 +100,55 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Google Sign In - METHOD INI HARUS DI DALAM CLASS!
+  // Sign Up With Google
+  Future<String?> signUpWithGoogle({required String role}) async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return 'Sign in cancelled';
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      try {
+        await _userService.createUser(
+          uid: userCredential.user!.uid,
+          name: googleUser.displayName ?? '',
+          email: googleUser.email,
+          role: role,
+        );
+      } catch (e) {
+        return 'error $e';
+      }
+
+      await _fetchRole();
+
+      notifyListeners();
+      return null; // Success
+    } catch (e) {
+      return 'Google sign in failed: ${e.toString()}';
+    }
+  }
+
   Future<String?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return 'Sign in cancelled';
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       await _auth.signInWithCredential(credential);
+
+      await _fetchRole();
       notifyListeners();
+
       return null; // Success
     } catch (e) {
       return 'Google sign in failed: ${e.toString()}';
@@ -96,7 +157,7 @@ class AuthService extends ChangeNotifier {
 
   // Sign Out
   Future<void> signOut() async {
-    await _googleSignIn.signOut(); // Sign out from Google too
+    await _googleSignIn.signOut();
     await _auth.signOut();
     notifyListeners();
   }
