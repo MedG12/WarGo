@@ -4,14 +4,13 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart'; // File yang sudah kamu punya
 import 'services/auth_service.dart';
 import 'screens/signin_screen.dart';
+import 'screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -22,9 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => AuthService())],
       child: MaterialApp(
         title: 'Firebase Auth App',
         theme: ThemeData(
@@ -63,60 +60,11 @@ class AuthWrapper extends StatelessWidget {
             } else {
               // User is not signed in, show sign in screen
               return const SignInScreen();
+              // return Text('Silahkan Login');
             }
           },
         );
       },
-    );
-  }
-}
-
-// Simple Home Screen
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUser;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: const Color(0xFF0E2148),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => authService.signOut(),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome!',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Hello ${user?.displayName ?? user?.email ?? 'User'}',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => authService.signOut(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF483AA0),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
