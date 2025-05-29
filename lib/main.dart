@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wargo/firebase_options.dart';
@@ -11,6 +12,8 @@ void main() async {
 
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
   await Firebase.initializeApp();
+
+  await FirebaseAuth.instance.signOut();
 
   runApp(const MyApp());
 }

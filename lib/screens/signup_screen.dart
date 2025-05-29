@@ -100,100 +100,100 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // Mengatasi keyboard overflow
       body: SafeArea(
-        child: Column(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Text(
-                  'Sign Up',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 40,
-                  ),
-                  textAlign: TextAlign.center,
+        child: SingleChildScrollView( // Membungkus seluruh content
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 40),
+
+              // Title
+              Text(
+                'Sign Up',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
                 ),
-                Container(
-                  margin: const EdgeInsets.only(
-                    top: 40,
-                    bottom: 20,
-                    left: 24,
-                    right: 24,
-                  ),
-                  width: double.infinity,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF483AA0),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Color(0xFF483AA0), width: 3),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _onToggle(0),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            decoration: BoxDecoration(
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 40),
+
+              // Toggle Merchant/User
+              Container(
+                width: double.infinity,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Color(0xFF483AA0),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0xFF483AA0), width: 3),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onToggle(0),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                            color:
+                            _selectedIndex == 0
+                                ? Colors.white
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Merchant',
+                            style: TextStyle(
                               color:
-                                  _selectedIndex == 0
-                                      ? Colors.white
-                                      : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Merchant',
-                              style: TextStyle(
-                                color:
-                                    _selectedIndex == 0
-                                        ? Colors.black
-                                        : Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                              _selectedIndex == 0
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _onToggle(1),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            decoration: BoxDecoration(
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onToggle(1),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                            color:
+                            _selectedIndex == 1
+                                ? Colors.white
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'User',
+                            style: TextStyle(
                               color:
-                                  _selectedIndex == 1
-                                      ? Colors.white
-                                      : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'User',
-                              style: TextStyle(
-                                color:
-                                    _selectedIndex == 1
-                                        ? Colors.black
-                                        : Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                              _selectedIndex == 1
+                                  ? Colors.black
+                                  : Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
+              ),
+
+              const SizedBox(height: 32),
+
+              // Form
+              Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -203,9 +203,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: _nameController,
                       labelText: _selectedIndex == 0 ? 'Nama Merchant' : 'Nama',
                       hintText:
-                          _selectedIndex == 0
-                              ? 'Masukkan Nama Merchant'
-                              : 'Masukkan Nama Lengkap',
+                      _selectedIndex == 0
+                          ? 'Masukkan Nama Merchant'
+                          : 'Masukkan Nama Lengkap',
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
 
@@ -229,6 +229,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     const SizedBox(height: 16),
 
+                    // Password Field
                     TextFormFieldCustom(
                       controller: _passwordController,
                       labelText: 'Password',
@@ -267,35 +268,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       child:
-                          _isLoading
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF483AA0),
-                                  ),
-                                ),
-                              )
-                              : const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                      _isLoading
+                          ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white, // Fixed color here
+                          ),
+                        ),
+                      )
+                          : const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
 
-            // Divider with "or"
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Row(
+              const SizedBox(height: 24),
+
+              // Divider with "or"
+              Row(
                 children: [
                   Expanded(child: Divider()),
                   Padding(
@@ -305,67 +304,83 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Expanded(child: Divider()),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Sign Up with Google Button
-            Center(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  _isGoogleLoading ? null : _signUpWithGoogle();
-                },
-                icon: Image.asset(
+              // Sign Up with Google Button
+              OutlinedButton.icon(
+                onPressed: _isGoogleLoading ? null : _signUpWithGoogle, // Fixed logic
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  side: BorderSide(color: Colors.grey[300]!),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: _isGoogleLoading
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                    : Image.asset(
                   'assets/images/google_icon.png',
                   width: 20,
                   height: 20,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.g_mobiledata,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
                 ),
-                label:
-                    _isGoogleLoading
-                        ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Color.fromARGB(255, 0, 0, 0),
-                            ),
-                          ),
-                        )
-                        : const Text(
-                          'Sign Up with Google',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w300,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Sign In Link
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Already have an account? ",
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      color: Color(0xFF483AA0),
-                      fontWeight: FontWeight.bold,
-                    ),
+                label: Text(
+                  _isGoogleLoading ? 'Signing up...' : 'Sign Up with Google',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // Sign In Link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Already have an account? ",
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(
+                        color: Color(0xFF483AA0),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32), // Bottom padding
+            ],
+          ),
         ),
       ),
     );
