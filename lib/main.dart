@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wargo/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 import 'screens/signin_screen.dart';
@@ -12,7 +11,7 @@ void main() async {
 
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
   await Firebase.initializeApp();
-
+  //uncomment untuk auto logout
   await FirebaseAuth.instance.signOut();
 
   runApp(const MyApp());
@@ -55,10 +54,16 @@ class AuthWrapper extends StatelessWidget {
             }
 
             if (snapshot.hasData) {
-              if (authService.role == 'merchant') {
-                return const HomeMerchScreen();
+              switch (authService.role) {
+                case 'merchant':
+                  return const HomeMerchScreen();
+                case 'user':
+                  return const HomeScreen();
+                default:
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
               }
-              return const HomeScreen();
             } else {
               // User is not signed in, show sign in screen
               return const SignInScreen();

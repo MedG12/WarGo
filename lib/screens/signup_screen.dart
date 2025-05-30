@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _isGoogleLoading = true);
 
     final authService = Provider.of<AuthService>(context, listen: false);
-    final error = await authService.signUpWithGoogle(
+    final error = await authService.signInWithGoogle(
       role: _selectedIndex == 0 ? 'merchant' : 'user',
     );
 
@@ -102,7 +102,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true, // Mengatasi keyboard overflow
       body: SafeArea(
-        child: SingleChildScrollView( // Membungkus seluruh content
+        child: SingleChildScrollView(
+          // Membungkus seluruh content
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -139,9 +140,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             color:
-                            _selectedIndex == 0
-                                ? Colors.white
-                                : Colors.transparent,
+                                _selectedIndex == 0
+                                    ? Colors.white
+                                    : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           alignment: Alignment.center,
@@ -149,9 +150,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'Merchant',
                             style: TextStyle(
                               color:
-                              _selectedIndex == 0
-                                  ? Colors.black
-                                  : Colors.white,
+                                  _selectedIndex == 0
+                                      ? Colors.black
+                                      : Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
@@ -166,9 +167,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             color:
-                            _selectedIndex == 1
-                                ? Colors.white
-                                : Colors.transparent,
+                                _selectedIndex == 1
+                                    ? Colors.white
+                                    : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           alignment: Alignment.center,
@@ -176,9 +177,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'User',
                             style: TextStyle(
                               color:
-                              _selectedIndex == 1
-                                  ? Colors.black
-                                  : Colors.white,
+                                  _selectedIndex == 1
+                                      ? Colors.black
+                                      : Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
@@ -203,9 +204,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: _nameController,
                       labelText: _selectedIndex == 0 ? 'Nama Merchant' : 'Nama',
                       hintText:
-                      _selectedIndex == 0
-                          ? 'Masukkan Nama Merchant'
-                          : 'Masukkan Nama Lengkap',
+                          _selectedIndex == 0
+                              ? 'Masukkan Nama Merchant'
+                              : 'Masukkan Nama Lengkap',
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
 
@@ -268,24 +269,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       child:
-                      _isLoading
-                          ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white, // Fixed color here
-                          ),
-                        ),
-                      )
-                          : const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white, // Fixed color here
+                                  ),
+                                ),
+                              )
+                              : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ],
                 ),
@@ -309,7 +310,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // Sign Up with Google Button
               OutlinedButton.icon(
-                onPressed: _isGoogleLoading ? null : _signUpWithGoogle, // Fixed logic
+                onPressed:
+                    _isGoogleLoading ? null : _signUpWithGoogle, // Fixed logic
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -319,33 +321,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                icon: _isGoogleLoading
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : Image.asset(
-                  'assets/images/google_icon.png',
-                  width: 20,
-                  height: 20,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.g_mobiledata,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
-                    );
-                  },
-                ),
+                icon:
+                    _isGoogleLoading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : Image.asset(
+                          'assets/images/google_icon.png',
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.g_mobiledata,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        ),
                 label: Text(
                   _isGoogleLoading ? 'Signing up...' : 'Sign Up with Google',
                   style: const TextStyle(

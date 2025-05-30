@@ -18,8 +18,10 @@ class AuthService extends ChangeNotifier {
   Future<void> _fetchRole() async {
     if (currentUser != null) {
       _role = await _userService.getRole(currentUser!.uid);
-      notifyListeners();
+    } else {
+      _role = null;
     }
+    notifyListeners();
   }
 
   // Sign Up
@@ -80,6 +82,9 @@ class AuthService extends ChangeNotifier {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
+      //Set role
+      await _fetchRole();
+
       notifyListeners();
       return null; // Success
     } on FirebaseAuthException catch (e) {
@@ -100,40 +105,7 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Sign Up With Google
-  Future<String?> signUpWithGoogle({required String role}) async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return 'Sign in cancelled';
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      final userCredential = await _auth.signInWithCredential(credential);
-
-      try {
-        await _userService.createUser(
-          uid: userCredential.user!.uid,
-          name: googleUser.displayName ?? '',
-          email: googleUser.email,
-          role: role,
-        );
-      } catch (e) {
-        return 'error $e';
-      }
-
-      await _fetchRole();
-
-      notifyListeners();
-      return null; // Success
-    } catch (e) {
-      return 'Google sign in failed: ${e.toString()}';
-    }
-  }
-
-  Future<String?> signInWithGoogle() async {
+  Future<String?> signInWithGoogle({String role = 'user'}) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return 'Sign in cancelled';
@@ -146,6 +118,17 @@ class AuthService extends ChangeNotifier {
 
       await _auth.signInWithCredential(credential);
 
+      final userCredential = await _auth.signInWithCredential(credential);
+      try {
+        await _userService.createUser(
+          uid: userCredential.user!.uid,
+          name: googleUser.displayName ?? '',
+          email: googleUser.email,
+          role: role,
+        );
+      } catch (e) {
+        return 'error $e';
+      }
       await _fetchRole();
       notifyListeners();
 
@@ -159,6 +142,8 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
+
+    await _fetchRole();
     notifyListeners();
   }
 

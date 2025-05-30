@@ -41,16 +41,13 @@ class _SignInScreenState extends State<SignInScreen> {
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
-
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (error != null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
         );
       }
     }
@@ -61,16 +58,13 @@ class _SignInScreenState extends State<SignInScreen> {
 
     final authService = Provider.of<AuthService>(context, listen: false);
     final error = await authService.signInWithGoogle();
-
+    if (!mounted) return;
     setState(() => _isGoogleLoading = false);
 
     if (error != null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
         );
       }
     }
@@ -119,7 +113,10 @@ class _SignInScreenState extends State<SignInScreen> {
                     const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: secondaryColor, width: 1.5), // Purple border
+                        border: Border.all(
+                          color: secondaryColor,
+                          width: 1.5,
+                        ), // Purple border
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: TextFormField(
@@ -143,8 +140,9 @@ class _SignInScreenState extends State<SignInScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Email tidak boleh kosong';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
+                          if (!RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          ).hasMatch(value)) {
                             return 'Format email tidak valid';
                           }
                           return null;
@@ -171,7 +169,10 @@ class _SignInScreenState extends State<SignInScreen> {
                     const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: secondaryColor, width: 1.5), // Purple border
+                        border: Border.all(
+                          color: secondaryColor,
+                          width: 1.5,
+                        ), // Purple border
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: TextFormField(
@@ -194,8 +195,9 @@ class _SignInScreenState extends State<SignInScreen> {
                               size: 20,
                             ),
                             onPressed: () {
-                              setState(() =>
-                              _obscurePassword = !_obscurePassword);
+                              setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              );
                             },
                           ),
                           border: InputBorder.none,
@@ -257,22 +259,25 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : const Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                 ),
 
                 const SizedBox(height: 32),
@@ -285,10 +290,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'or',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ),
                     Expanded(child: Divider(color: Colors.grey[300])),
@@ -310,32 +312,33 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  icon: _isGoogleLoading
-                      ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                      : Image.asset(
-                    'assets/images/google_logo.png',
-                    height: 20,
-                    width: 20,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.g_mobiledata,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
+                  icon:
+                      _isGoogleLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : Image.asset(
+                            'assets/images/google_logo.png',
+                            height: 20,
+                            width: 20,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.g_mobiledata,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          ),
                   label: Text(
                     _isGoogleLoading ? 'Signing in...' : 'Sign In with Google',
                     style: const TextStyle(
@@ -353,16 +356,14 @@ class _SignInScreenState extends State<SignInScreen> {
                   children: [
                     Text(
                       "Didn't have a account? ",
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (context) => const SignUpScreen()),
+                            builder: (context) => const SignUpScreen(),
+                          ),
                         );
                       },
                       child: Text(
