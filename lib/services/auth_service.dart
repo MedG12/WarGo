@@ -39,6 +39,7 @@ class AuthService extends ChangeNotifier {
 
       // Update display name
       await result.user?.updateDisplayName(name);
+      await result.user?.updatePhotoURL('');
       await result.user?.reload();
 
       // Create user document
@@ -93,12 +94,14 @@ class AuthService extends ChangeNotifier {
           return 'Email tidak ditemukan';
         case 'wrong-password':
           return 'Password salah';
+        case 'invalid-credential':
+          return 'Email atau password tidak valid';
         case 'invalid-email':
           return 'Format email tidak valid';
         case 'user-disabled':
           return 'Akun telah dinonaktifkan';
         default:
-          return 'Terjadi kesalahan: ${e.message}';
+          return 'Terjadi kesalahan: ${e.code}';
       }
     } catch (e) {
       return 'Terjadi kesalahan yang tidak diketahui';

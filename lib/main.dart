@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:wargo/screens/user/user_main_screen.dart';
 import 'services/auth_service.dart';
 import 'screens/signin_screen.dart';
-import 'screens/user/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,7 +58,7 @@ class AuthWrapper extends StatelessWidget {
                 case 'merchant':
                   return const HomeMerchScreen();
                 case 'user':
-                  return const HomeScreen();
+                  return const UserMainScreen();
                 default:
                   return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
