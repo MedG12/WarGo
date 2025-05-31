@@ -13,7 +13,17 @@ class AuthService extends ChangeNotifier {
 
   User? get currentUser => _auth.currentUser;
 
+  String? _currentLocation;
+  String? get currentLocation => _currentLocation;
+
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  AuthService() {
+    // Panggil fetchRole saat auth state berubah
+    _auth.authStateChanges().listen((User? user) async {
+      await _fetchRole();
+    });
+  }
 
   Future<void> _fetchRole() async {
     if (currentUser != null) {
@@ -132,7 +142,9 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         return 'error $e';
       }
+
       await _fetchRole();
+
       notifyListeners();
 
       return null; // Success

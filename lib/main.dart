@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:wargo/screens/user/user_main_screen.dart';
+
 import 'services/auth_service.dart';
+import 'package:wargo/services/location_service.dart';
+
 import 'screens/signin_screen.dart';
+import 'package:wargo/screens/user/user_main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +16,7 @@ void main() async {
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
   await Firebase.initializeApp();
   //uncomment untuk auto logout
-  await FirebaseAuth.instance.signOut();
+  // await FirebaseAuth.instance.signOut();
 
   runApp(const MyApp());
 }
@@ -23,7 +27,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthService())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => LocationService()),
+      ],
       child: MaterialApp(
         title: 'Firebase Auth App',
         theme: ThemeData(
@@ -39,7 +46,6 @@ class MyApp extends StatelessWidget {
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthService>(
@@ -54,6 +60,7 @@ class AuthWrapper extends StatelessWidget {
             }
 
             if (snapshot.hasData) {
+              // print('user role: ${authService.role}');
               switch (authService.role) {
                 case 'merchant':
                   return const HomeMerchScreen();

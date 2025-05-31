@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wargo/models/merchant.dart';
 import 'package:wargo/services/auth_service.dart';
+import 'package:wargo/services/location_service.dart';
 import 'package:wargo/widgets/sellerCard.dart';
+import 'package:provider/provider.dart';
 
 // Definisikan warna utama
 const Color primaryColor = Color(0xFF0E2148);
@@ -20,9 +23,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   AuthService authService = AuthService();
-
   @override
   Widget build(BuildContext context) {
+    String? currentCity = context.watch<LocationService>().currentCity;
     SearchController _searchController = SearchController();
     return Scaffold(
       body: SafeArea(
@@ -46,27 +49,43 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 300, // Sesuaikan tinggi gambar
                     ),
                     Positioned(
-                      bottom: 60,
-                      left: 20,
-                      child: Text(
-                        "What's on",
-                        style: TextStyle(
-                          color: textLightColor,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Positioned(
                       bottom: 20,
                       left: 20,
-                      child: Text(
-                        "Depok",
-                        style: TextStyle(
-                          color: textLightColor,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      right: 10,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "What's on",
+                            style: TextStyle(
+                              color: textLightColor,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_sharp,
+                                color: Colors.redAccent,
+                                size: 30,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  currentCity ?? 'Please wait...',
+                                  style: TextStyle(
+                                    color: textLightColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  softWrap: true,
+                                  overflow: TextOverflow.visible,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],

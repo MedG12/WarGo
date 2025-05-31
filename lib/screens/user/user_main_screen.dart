@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wargo/screens/map_screen.dart';
 import 'package:wargo/screens/user/home.dart';
 import 'package:wargo/services/auth_service.dart';
+import 'package:wargo/services/location_service.dart';
 import 'package:wargo/widgets/navItem.dart';
 import 'package:wargo/widgets/navItemProfile.dart';
 
@@ -13,9 +15,19 @@ class UserMainScreen extends StatefulWidget {
 }
 
 class _UserMainScreenState extends State<UserMainScreen> {
-  AuthService authService = AuthService();
   int _currentIndex = 0;
   final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<LocationService>(context, listen: false).loadCachedLocation();
+
+      // Refresh jika diperlukan (misal: setiap 1 jam)
+      Provider.of<LocationService>(context, listen: false).fetchLocation();
+    });
+  }
 
   @override
   void dispose() {
@@ -25,6 +37,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Scaffold(
       body: SafeArea(
         child: PageView(
