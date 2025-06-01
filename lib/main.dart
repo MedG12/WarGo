@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -15,6 +16,7 @@ void main() async {
 
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
   await Firebase.initializeApp();
+
   //uncomment untuk auto logout
   // await FirebaseAuth.instance.signOut();
 
@@ -85,6 +87,8 @@ class AuthWrapper extends StatelessWidget {
 
 class HomeMerchScreen extends StatelessWidget {
   const HomeMerchScreen({super.key});
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;

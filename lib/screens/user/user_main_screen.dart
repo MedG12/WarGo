@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/screens/map_screen.dart';
+import 'package:wargo/screens/user/chats_screen.dart';
 import 'package:wargo/screens/user/home.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
@@ -23,8 +24,6 @@ class _UserMainScreenState extends State<UserMainScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LocationService>(context, listen: false).loadCachedLocation();
-
-      // Refresh jika diperlukan (misal: setiap 1 jam)
       Provider.of<LocationService>(context, listen: false).fetchLocation();
     });
   }
@@ -51,7 +50,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
           children: [
             HomeScreen(),
             MapScreen(),
-            Container(color: Colors.blue, child: Center(child: Text('Chat'))),
+            ChatsScreen(),
             Container(
               color: Colors.yellow,
               child: Center(child: Text('Profile')),

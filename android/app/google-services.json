@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1061003401193",
+    "firebase_url": "https://wargo-e9839-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "wargo-e9839",
     "storage_bucket": "wargo-e9839.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.wargo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1061003401193-ienjst9jl0394858bduvqi0p2kfnm8oq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wargo",
+            "certificate_hash": "e5dddd6145533988bcc0aa980e80654e7efcc998"
+          }
+        },
+        {
+          "client_id": "1061003401193-r3v2336dgjbn07auinnq8t7b3vcv5tu4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB5-Wle83FWzXfj4sfriLxRWF2kAU0oNq0"
@@ -20,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061003401193-r3v2336dgjbn07auinnq8t7b3vcv5tu4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1061003401193-o0hb105ntp4tmn96fjvd47g6189kj5l4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.wargo"
+              }
+            }
+          ]
         }
       }
     }

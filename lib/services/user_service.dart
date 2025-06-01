@@ -11,7 +11,7 @@ class UserService {
     required String email,
     required String role,
   }) async {
-    final docSnapshot = await users.doc(uid).get(); 
+    final docSnapshot = await users.doc(uid).get();
     if (!docSnapshot.exists) {
       await users.doc(uid).set({
         'name': name,
@@ -27,8 +27,9 @@ class UserService {
     return docSnapshot['role'];
   }
 
-  Future<DocumentSnapshot> getUser(String uid) async {
-    return await users.doc(uid).get();
+  Future<Map<String, dynamic>> getUserData(String uid) async {
+    final doc = await users.doc(uid).get();
+    return doc.data() as Map<String, dynamic>? ?? {};
   }
 
   Future<void> updateUser(String uid, Map<String, dynamic> data) async {
