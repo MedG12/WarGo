@@ -95,7 +95,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
           BottomNavigationBarItem(
             icon: navItemProfile(
               _currentIndex == 3,
-              authService.currentUser!.photoURL!,
+              authService.currentUser?.photoURL?? '',
             ),
             label: '',
           ),
