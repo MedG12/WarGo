@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wargo/screens/map_screen.dart';
 import 'package:wargo/screens/user/chats_screen.dart';
 import 'package:wargo/screens/user/home.dart';
+import 'package:wargo/screens/user/profile_screen.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
 import 'package:wargo/widgets/navItem.dart';
@@ -47,15 +48,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
               _currentIndex = index;
             });
           },
-          children: [
-            HomeScreen(),
-            MapScreen(),
-            ChatsScreen(),
-            Container(
-              color: Colors.yellow,
-              child: Center(child: Text('Profile')),
-            ),
-          ],
+          children: [HomeScreen(), MapScreen(), ChatsScreen(), ProfileScreen()],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -92,10 +85,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: navItemProfile(
-              _currentIndex == 3,
-              authService.currentUser?.photoURL?? '',
-            ),
+            icon: navItemProfile(context, _currentIndex == 3),
             label: '',
           ),
         ],

@@ -1,11 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:wargo/models/chatMessage.dart';
+import 'package:intl/intl.dart';
+import 'package:wargo/models/message.dart';
 
 class ChatBubble extends StatelessWidget {
-  final ChatMessage message;
+  final Message message;
   final bool isMe;
 
   const ChatBubble({super.key, required this.message, required this.isMe});
+  String getTimestamp(int timestamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return DateFormat('HH:mm').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,7 @@ class ChatBubble extends StatelessWidget {
           children: [
             if (!isMe)
               Text(
-                message.sender,
+                message.senderName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.secondary,
@@ -44,7 +50,7 @@ class ChatBubble extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              message.time,
+              getTimestamp(message.timestamp),
               style: TextStyle(
                 color: isMe ? Colors.white70 : Colors.grey[600],
                 fontSize: 10,

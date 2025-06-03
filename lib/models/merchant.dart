@@ -1,22 +1,39 @@
+import 'package:latlong2/latlong.dart';
+
 class Merchant {
-  final String imagePath;
+  final String id;
+  final String? imagePath;
   final String name;
-  final String distance;
+  LatLng? location;
+  String? distance;
   final String description;
-  final String openHours;
+  final String? openHours;
 
   Merchant({
-    required this.imagePath,
+    required this.id,
+    this.imagePath,
+    this.location,
     required this.name,
-    required this.distance,
+    this.distance,
     required this.description,
-    required this.openHours,
+    this.openHours,
   });
+
+  factory Merchant.fromMap(Map<String, dynamic> data) {
+    return Merchant(
+      id: data['id'],
+      imagePath: data['photoUrl'],
+      location: LatLng(data['lat'], data['lng']),
+      name: data['name'],
+      description: data['description'],
+    );
+  }
 }
 
 // Data dummy untuk list penjual
 final List<Merchant> sellers = [
   Merchant(
+    id: 'JvQU1c6VE1Zado6O361weVD4gGJ3',
     imagePath: 'assets/images/img_1.png',
     name: 'Siomay Uhuy',
     distance: '2.3km',
@@ -25,6 +42,7 @@ final List<Merchant> sellers = [
     openHours: '9:00 AM - 8:00 PM',
   ),
   Merchant(
+    id: 'JvQU1c6VE1Zado6O361weVD4gGJ3',
     imagePath: 'assets/images/img_2.png',
     name: 'Siomay Uhuy', // Nama bisa berbeda, contoh menggunakan nama sama
     distance: '2.3km',
@@ -33,6 +51,7 @@ final List<Merchant> sellers = [
     openHours: '9:00 AM - 8:00 PM',
   ),
   Merchant(
+    id: 'JvQU1c6VE1Zado6O361weVD4gGJ3',
     imagePath: 'assets/images/img_3.png',
     name: 'Siomay Uhuy',
     distance: '2.3km',
@@ -41,6 +60,7 @@ final List<Merchant> sellers = [
     openHours: '9:00 AM - 8:00 PM',
   ),
   Merchant(
+    id: 'JvQU1c6VE1Zado6O361weVD4gGJ3',
     imagePath: 'assets/images/img_4.png',
     name: 'Siomay Uhuy',
     distance: '2.3km',

@@ -45,6 +45,8 @@ dependencies:
   geolocator: ^14.0.1
   shared_preferences: ^2.5.3
   firebase_database: ^11.3.6
+  latlong2: ^0.9.1
+  supabase_flutter: ^2.9.0
   image_picker: ^1.1.0
 
 dev_dependencies:

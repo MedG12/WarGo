@@ -1,15 +1,19 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wargo/models/merchant.dart';
 
 class LocationService extends ChangeNotifier {
   String? _currentCity;
   DateTime? _lastUpdated;
-
+  final _dbRef = FirebaseDatabase.instance.ref();
   String? get currentCity => _currentCity;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Key untuk SharedPreferences
   static const _kCachedCityKey = 'cached_city';
@@ -103,6 +107,80 @@ class LocationService extends ChangeNotifier {
         distanceFilter: 5,
       ),
     );
+  }
+
+  Future<void> updateLocationToFirebase(
+    Position position,
+    String merchantId,
+  ) async {
+    final data = {
+      'lat': position.latitude,
+      'lng': position.longitude,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    try {
+      await _dbRef.child("locations/$merchantId").set(data);
+    } catch (e) {
+      print("Error updating location: $e");
+    }
+  }
+
+  Future<void> deleteLocationFromFirebase(String merchantId) async {
+    try {
+      await _dbRef.child("locations/$merchantId").remove();
+    } catch (e) {
+      print("Error deleting location: $e");
+    }
+  }
+
+  Stream<List<Merchant>> getAllMerchants() {
+    return _dbRef
+        .child("locations")
+        .orderByChild('timestamp')
+        .startAt(
+          DateTime.now().subtract(Duration(minutes: 30)).millisecondsSinceEpoch,
+        )
+        .onValue
+        .asyncMap((event) async {
+          final locationData = event.snapshot.value as Map?;
+          if (locationData == null) return [];
+
+          final List<Merchant> merchants = [];
+
+          for (final entry in locationData.entries) {
+            final merchantId = entry.key as String;
+            final locData = entry.value as Map;
+            try {
+              final doc =
+                  await _firestore
+                      .collection('merchants')
+                      .doc(merchantId)
+                      .get();
+
+              if (doc.exists) {
+                final merchantData = doc.data() as Map<String, dynamic>;
+                final profileDoc =
+                    await _firestore.collection('users').doc(merchantId).get();
+                final profileData = profileDoc.data() as Map<String, dynamic>;
+                // Gabungkan data lokasi dengan data merchant
+                merchantData.addAll({
+                  'id': merchantId,
+                  'photoUrl': profileData['photoUrl'],
+                  'name': profileData['name'],
+                  'lat': locData['lat'],
+                  'lng': locData['lng'],
+                  // 'timestamp': locData['timestamp'],
+                });
+                merchants.add(Merchant.fromMap(merchantData));
+              }
+            } catch (e) {
+              print('Error fetching merchant $merchantId: $e');
+            }
+          }
+          print('Fetched ${merchants.length} merchants');
+          return merchants;
+        });
   }
 
   Future<String> getCityNameFromOSM(double lat, double lon) async {

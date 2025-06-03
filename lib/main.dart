@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -17,8 +17,14 @@ void main() async {
   // Initialize Firebase dengan file firebase_options.dart yang sudah ada
   await Firebase.initializeApp();
 
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://yytfhvpbeqahcaytsgckm.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Zmh2cGJlcWFoY2F5dHNnY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MzQ0NzIsImV4cCI6MjA2NDQxMDQ3Mn0.90biNLFG4pHgty37B63cXp8BS7FMH-rnaaQKSCqprCE',
+  );
   //uncomment untuk auto logout
-  // await FirebaseAuth.instance.signOut();
+  await FirebaseAuth.instance.signOut();
 
   runApp(const MyApp());
 }
@@ -65,7 +71,7 @@ class AuthWrapper extends StatelessWidget {
               // print('user role: ${authService.role}');
               switch (authService.role) {
                 case 'merchant':
-                  return const HomeMerchScreen();
+                  return const UserMainScreen();
                 case 'user':
                   return const UserMainScreen();
                 default:

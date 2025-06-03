@@ -10,6 +10,7 @@ class UserService {
     required String name,
     required String email,
     required String role,
+    String? photoUrl,
   }) async {
     final docSnapshot = await users.doc(uid).get();
     if (!docSnapshot.exists) {
@@ -17,6 +18,7 @@ class UserService {
         'name': name,
         'email': email,
         'role': role,
+        'photoUrl': photoUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
