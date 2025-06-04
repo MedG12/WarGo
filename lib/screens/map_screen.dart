@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:wargo/models/merchant.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
+import 'package:wargo/services/notification_service.dart';
 import 'package:wargo/widgets/MerchantMarker.dart';
 
 class MapScreen extends StatefulWidget {
@@ -20,12 +21,13 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _authService = context.read<AuthService>();
-    final _locationService = LocationService();
-    final isMerchant = _authService.role == 'merchant';
-    final user = _authService.currentUser;
+    final authService = context.read<AuthService>();
+    final locationService = LocationService();
+    final proximityService = ProximityAlertService();
+    final isMerchant = authService.role == 'merchant';
+    final user = authService.currentUser;
 
-    String _getInitials(String name) {
+    String getInitials(String name) {
       return name
           .trim()
           .split(' ')
@@ -35,7 +37,7 @@ class _MapScreenState extends State<MapScreen> {
           .toUpperCase();
     }
 
-    void _showMerchantModal(BuildContext context, Merchant merchant) {
+    void showMerchantModal(BuildContext context, Merchant merchant) {
       showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -60,7 +62,7 @@ class _MapScreenState extends State<MapScreen> {
                         merchant.imagePath == null ||
                                 merchant.imagePath!.isEmpty
                             ? Text(
-                              _getInitials(merchant.name),
+                              getInitials(merchant.name),
                               style: TextStyle(fontSize: 24),
                             )
                             : null,
@@ -84,7 +86,7 @@ class _MapScreenState extends State<MapScreen> {
                     icon: Icon(Icons.notifications_active),
                     label: Text('Ingatkan Saya'),
                     onPressed: () {
-                      // _tagMerchantLocation(merchant); // fungsi tagging
+                      proximityService.addTaggedMerchant(merchant.id);
                       Navigator.pop(context);
                     },
                   ),
@@ -97,7 +99,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     return StreamBuilder<Position>(
-      stream: _locationService.getLocationStream(),
+      stream: locationService.getLocationStream(),
       builder: (context, userSnapshot) {
         if (!userSnapshot.hasData) {
           return const Scaffold(
@@ -107,7 +109,7 @@ class _MapScreenState extends State<MapScreen> {
         final userPosition = userSnapshot.data!;
 
         if (userSnapshot.hasData && isMerchant) {
-          _locationService.updateLocationToFirebase(userPosition, user!.uid);
+          locationService.updateLocationToFirebase(userPosition, user!.uid);
         }
 
         final userLatLng = LatLng(
@@ -116,7 +118,7 @@ class _MapScreenState extends State<MapScreen> {
         );
 
         return StreamBuilder<List<Merchant>>(
-          stream: _locationService.getAllMerchants(),
+          stream: locationService.getAllMerchants(),
           builder: (context, snapshot) {
             final markers = <Marker>[
               if (!isMerchant)
@@ -127,7 +129,14 @@ class _MapScreenState extends State<MapScreen> {
             ];
 
             if (snapshot.hasData) {
-              // print('snapshot data: ${snapshot.data!.length}');
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                final taggedMerchants =
+                    await proximityService.getTaggedMerchants();
+                if (taggedMerchants.isNotEmpty) {
+                  proximityService.checkProximity(snapshot.data!, userPosition);
+                }
+              });
+
               for (final merchant in snapshot.data!) {
                 if (merchant.location == null) continue;
 
@@ -148,7 +157,7 @@ class _MapScreenState extends State<MapScreen> {
                     Marker(
                       point: merchant.location!,
                       child: GestureDetector(
-                        onTap: () => _showMerchantModal(context, merchant),
+                        onTap: () => showMerchantModal(context, merchant),
                         child: merchantMarker(
                           merchant.name,
                           merchant.imagePath,

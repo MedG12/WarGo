@@ -12,6 +12,8 @@ class LocationService extends ChangeNotifier {
   String? _currentCity;
   DateTime? _lastUpdated;
   final _dbRef = FirebaseDatabase.instance.ref();
+  // Stream<Position> posisi = Position(0, 0).asStream();
+
   String? get currentCity => _currentCity;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
