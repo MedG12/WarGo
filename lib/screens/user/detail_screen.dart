@@ -80,7 +80,7 @@ class DetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       image: DecorationImage(
-                        image: AssetImage(merchant.imagePath),
+                        image: AssetImage(merchant.imagePath!),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -151,7 +151,7 @@ class DetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            merchant.distance,
+                            merchant.distance!,
                             style: const TextStyle(
                               fontSize: 14, // Diperbesar dari 12 ke 14
                               fontWeight: FontWeight.w600,

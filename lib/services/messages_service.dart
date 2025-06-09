@@ -1,31 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:wargo/models/message.dart';
 import 'package:wargo/models/chatPreview.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/user_service.dart';
-
-class Message {
-  final String senderId;
-  final String text;
-  final int timestamp;
-
-  Message({
-    required this.senderId,
-    required this.text,
-    required this.timestamp,
-  });
-
-  factory Message.fromMap(Map data) {
-    return Message(
-      senderId: data['senderId'],
-      text: data['text'],
-      timestamp: data['timestamp'],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {'senderId': senderId, 'text': text, 'timestamp': timestamp};
-  }
-}
 
 class MessagesService {
   final _db = FirebaseDatabase.instance;
@@ -92,11 +69,13 @@ class MessagesService {
 
   Future<void> sendMessage(String receiverId, String text) async {
     final currentUser = _auth.currentUser!;
+    final nama = currentUser.displayName ?? '';
     final chatId = _getChatId(currentUser.uid, receiverId);
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final newMessageRef = _db.ref('messages/$chatId').push();
 
     final messageData = {
+      'senderName': nama,
       'senderId': currentUser.uid,
       'text': text,
       'timestamp': timestamp,
@@ -106,7 +85,7 @@ class MessagesService {
     await newMessageRef.set(messageData);
 
     // Update metadata
-    final metadataRef = _db.ref('chat_metadata/$chatId');
+    final metadataRef = _db.ref('chats_metadata/$chatId');
     await metadataRef.update({
       'lastMessage': text,
       'lastTimestamp': timestamp,
@@ -126,9 +105,10 @@ class MessagesService {
       if (data == null) return [];
 
       return data.entries.map((entry) {
-        final msg = Map<String, dynamic>.from(entry.value);
-        return Message.fromMap(msg);
-      }).toList();
+          final msg = Map<String, dynamic>.from(entry.value);
+          return Message.fromMap(msg);
+        }).toList()
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
     });
   }
 

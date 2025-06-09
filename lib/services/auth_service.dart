@@ -7,6 +7,7 @@ class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final _userService = UserService();
+  bool _isCreatingUser = false;
 
   String? _role;
   String? get role => _role;
@@ -21,7 +22,9 @@ class AuthService extends ChangeNotifier {
   AuthService() {
     // Panggil fetchRole saat auth state berubah
     _auth.authStateChanges().listen((User? user) async {
-      await _fetchRole();
+      if (!_isCreatingUser) {
+        await _fetchRole();
+      }
     });
   }
 
@@ -42,6 +45,7 @@ class AuthService extends ChangeNotifier {
     required String role,
   }) async {
     try {
+      _isCreatingUser = true;
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -49,7 +53,7 @@ class AuthService extends ChangeNotifier {
 
       // Update display name
       await result.user?.updateDisplayName(name);
-      await result.user?.updatePhotoURL('');
+      // await result.user?.updatePhotoURL('');
       await result.user?.reload();
 
       // Create user document
@@ -82,6 +86,8 @@ class AuthService extends ChangeNotifier {
       }
     } catch (e) {
       return 'Terjadi kesalahan yang tidak diketahui';
+    } finally {
+      _isCreatingUser = false;
     }
   }
 
@@ -137,6 +143,7 @@ class AuthService extends ChangeNotifier {
           uid: userCredential.user!.uid,
           name: googleUser.displayName ?? '',
           email: googleUser.email,
+          photoUrl: googleUser.photoUrl ?? '',
           role: role,
         );
       } catch (e) {

@@ -36,7 +36,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(seller.imagePath),
+                image: AssetImage(seller.imagePath!),
                 fit: BoxFit.cover,
               ),
             ),
@@ -68,7 +68,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  seller.openHours,
+                  seller.openHours!,
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.green,
@@ -92,7 +92,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
                     size: 16,
                   ),
                   Text(
-                    seller.distance,
+                    seller.distance!,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

@@ -4,7 +4,6 @@ import 'package:wargo/models/merchant.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
 import 'package:wargo/widgets/sellerCard.dart';
-import 'package:provider/provider.dart';
 
 // Definisikan warna utama
 const Color primaryColor = Color(0xFF0E2148);

@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:wargo/models/chatPreview.dart';
 import 'package:wargo/screens/user/chat_details_screen.dart';
 import 'package:wargo/services/messages_service.dart';
+import 'package:intl/intl.dart';
 
 class ChatsScreen extends StatelessWidget {
   const ChatsScreen({Key? key}) : super(key: key);
+  String getTimestamp(int timestamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return DateFormat('HH:mm').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +29,11 @@ class ChatsScreen extends StatelessWidget {
             StreamBuilder<List<ChatPreview>>(
               stream: MessagesService().getUserChats(),
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
                 final chats = snapshot.data ?? [];
                 if (chats.isEmpty) {
                   return SliverFillRemaining(
@@ -71,23 +81,46 @@ class ChatsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ChatDetailsScreen(),
+                                builder:
+                                    (context) => ChatDetailsScreen(
+                                      title: chat.peerName,
+                                      peerId: chat.peerId,
+                                    ),
                               ),
                             );
                           },
-                          leading: CircleAvatar(
-                            radius: 40,
-                            backgroundImage: NetworkImage(chat.peerPhotoUrl),
-                          ),
+                          leading:
+                              chat.peerPhotoUrl.isEmpty
+                                  ? CircleAvatar(
+                                    radius: 40,
+                                    backgroundColor: Colors.blueAccent,
+                                    child: Text(
+                                      chat.peerName[0].toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                  : CircleAvatar(
+                                    radius: 40,
+                                    backgroundImage: NetworkImage(
+                                      chat.peerPhotoUrl,
+                                    ),
+                                  ),
                           title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                chat.peerName,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Flexible(
+                                child: Text(
+                                  chat.peerName,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ),
-                              const Spacer(),
                               Text(
-                                chat.lastTimestamp.toString(),
+                                getTimestamp(chat.lastTimestamp),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
