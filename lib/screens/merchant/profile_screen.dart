@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/services/auth_service.dart';
-import 'package:wargo/services/user_service.dart';
+import 'package:wargo/services/merchant/merchant_service.dart';
 import 'package:wargo/services/storage_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,10 +15,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController openHoursController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? profileImageFile;
-  final UserService _userService = UserService();
+  final MerchantService _merchantService = MerchantService();
   final StorageService _storageService = StorageService();
   bool _isLoading = false;
   String? _currentPhotoUrl;
@@ -33,11 +34,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
     if (user != null) {
-      setState(() {
-        nameController.text = user.displayName ?? '';
-        emailController.text = user.email ?? '';
-        _currentPhotoUrl = user.photoURL;
-      });
+      final merchant = await _merchantService.getMerchantProfile(user.uid);
+      if (merchant != null) {
+        setState(() {
+          nameController.text = merchant.name;
+          descriptionController.text = merchant.description ?? '';
+          openHoursController.text = merchant.openHours ?? '';
+          _currentPhotoUrl = merchant.photoUrl;
+        });
+      }
     }
   }
 
@@ -72,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           newPhotoUrl = await _storageService.uploadImage(
             imageFile: profileImageFile!,
             bucketName: 'gerobakgo',
-            path: 'profiles/${user.uid}',
+            path: 'merchants/${user.uid}',
           );
           
           // Hapus foto lama jika ada
@@ -97,10 +102,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
         
         // Update data di Firestore
-        await _userService.updateUser(user.uid, {
-          'name': nameController.text,
-          'photoUrl': newPhotoUrl,
-        });
+        await _merchantService.updateMerchantProfile(
+          user.uid,
+          {
+            'name': nameController.text,
+            'description': descriptionController.text,
+            'openHours': openHoursController.text,
+            'photoUrl': newPhotoUrl,
+          },
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profil berhasil diperbarui')),
@@ -143,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'My Profile',
+                    'Profil Merchant',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
@@ -193,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Nama Merchant', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   TextField(
                     controller: nameController,
@@ -212,17 +222,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            // Email Field
+            // Description Field
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Deskripsi', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   TextField(
-                    controller: emailController,
-                    enabled: false,
+                    controller: descriptionController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFF5D42D1)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xFF5D42D1), width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Open Hours Field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Jam Operasional', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: openHoursController,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       border: OutlineInputBorder(
@@ -267,4 +302,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
+} 

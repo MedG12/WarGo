@@ -7,10 +7,8 @@ import 'package:wargo/widgets/sellerCard.dart';
 
 // Definisikan warna utama
 const Color primaryColor = Color(0xFF0E2148);
-const Color textLightColor =
-    Colors.white; // Warna teks di atas background gelap
-const Color textDarkColor =
-    Colors.black87; // Warna teks di atas background terang
+const Color textLightColor = Colors.white;
+const Color textDarkColor = Colors.black87;
 const Color textMutedColor = Colors.grey;
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   AuthService authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     String? currentCity = context.watch<LocationService>().currentCity;
@@ -31,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 250, // Tinggi gambar
+              expandedHeight: 250,
               backgroundColor: primaryColor,
               floating: false,
               pinned: true,
@@ -45,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       alignment: Alignment.topCenter,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      height: 300, // Sesuaikan tinggi gambar
+                      height: 300,
                     ),
                     Positioned(
                       bottom: 20,
@@ -108,24 +107,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverFillRemaining(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ), // Atur radius sesuai kebutuhan
-                child: Container(
-                  color: Colors.white, // Warna background container
-                  child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(top: 16, bottom: 16),
-                    itemCount: sellers.length,
-                    itemBuilder: (context, index) {
-                      return sellerCard(context, sellers[index]);
+            StreamBuilder<List<Merchant>>(
+              stream: context.read<LocationService>().getAllMerchants(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SliverToBoxAdapter(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Text('Belum ada merchant yang terdaftar'),
+                    ),
+                  );
+                }
+
+                final merchants = snapshot.data!;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return sellerCard(context, merchants[index]);
                     },
+                    childCount: merchants.length,
                   ),
-                ),
-              ),
+                );
+              },
             ),
+            // Menambahkan ruang kosong di bagian bawah untuk BottomNavigationBar
+            const SliverToBoxAdapter(child: SizedBox(height: 250)),
           ],
         ),
       ),

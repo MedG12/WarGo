@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wargo/models/merchant.dart';
+import 'package:latlong2/latlong.dart';
 
 class LocationService extends ChangeNotifier {
   String? _currentCity;
@@ -137,50 +138,46 @@ class LocationService extends ChangeNotifier {
   }
 
   Stream<List<Merchant>> getAllMerchants() {
-    return _dbRef
-        .child("locations")
-        .orderByChild('timestamp')
-        .startAt(
-          DateTime.now().subtract(Duration(minutes: 30)).millisecondsSinceEpoch,
-        )
-        .onValue
-        .asyncMap((event) async {
-          final locationData = event.snapshot.value as Map?;
-          if (locationData == null) return [];
-
+    print('Starting getAllMerchants stream');
+    return _firestore
+        .collection('merchants')
+        .snapshots()
+        .asyncMap((merchantSnapshot) async {
+          print('Received merchant data from Firestore');
           final List<Merchant> merchants = [];
 
-          for (final entry in locationData.entries) {
-            final merchantId = entry.key as String;
-            final locData = entry.value as Map;
+          for (final merchantDoc in merchantSnapshot.docs) {
+            final merchantId = merchantDoc.id;
+            print('Processing merchant $merchantId');
             try {
-              final doc =
-                  await _firestore
-                      .collection('merchants')
-                      .doc(merchantId)
-                      .get();
-
-              if (doc.exists) {
-                final merchantData = doc.data() as Map<String, dynamic>;
-                final profileDoc =
-                    await _firestore.collection('users').doc(merchantId).get();
-                final profileData = profileDoc.data() as Map<String, dynamic>;
-                // Gabungkan data lokasi dengan data merchant
-                merchantData.addAll({
+              // Ambil data user untuk mendapatkan nama dan foto
+              final userDoc = await _firestore.collection('users').doc(merchantId).get();
+              
+              if (userDoc.exists) {
+                print('Found user data for merchant $merchantId');
+                final userData = userDoc.data() as Map<String, dynamic>;
+                final merchantData = merchantDoc.data();
+                
+                // Gabungkan data merchant dan user
+                final combinedData = {
                   'id': merchantId,
-                  'photoUrl': profileData['photoUrl'],
-                  'name': profileData['name'],
-                  'lat': locData['lat'],
-                  'lng': locData['lng'],
-                  // 'timestamp': locData['timestamp'],
-                });
-                merchants.add(Merchant.fromMap(merchantData));
+                  'name': userData['name'],
+                  'photoUrl': userData['photoUrl'],
+                  'description': merchantData['description'] ?? '',
+                  'openHours': merchantData['openHours'] ?? 'N/A',
+                };
+                
+                merchants.add(Merchant.fromMap(combinedData));
+                print('Successfully added merchant $merchantId to list');
+              } else {
+                print('No user data found for merchant $merchantId');
               }
             } catch (e) {
-              print('Error fetching merchant $merchantId: $e');
+              print('Error processing merchant $merchantId: $e');
             }
           }
-          print('Fetched ${merchants.length} merchants');
+          
+          print('Final merchant list contains ${merchants.length} merchants');
           return merchants;
         });
   }

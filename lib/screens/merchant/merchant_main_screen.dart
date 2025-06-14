@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/screens/merchant/merchant_dashboard_screen.dart';
+import 'package:wargo/screens/merchant/profile_screen.dart';
 
 class MerchantMainScreen extends StatefulWidget {
   const MerchantMainScreen({super.key});
@@ -17,7 +18,7 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
     MerchantDashboardScreen(), // Tab Home (Dashboard)
     Center(child: Text('Halaman Peta (Merchant)')),
     Center(child: Text('Halaman Chat (Merchant)')),
-    Center(child: Text('Halaman Profil (Merchant)')),
+    ProfileScreen(), // Tab Profile
   ];
 
   void _onItemTapped(int index) {

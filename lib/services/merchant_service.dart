@@ -18,10 +18,10 @@ class MerchantService {
   Future<MerchantModel?> getMerchantProfile(String userId) async {
     try {
       DocumentSnapshot merchantDoc =
-          await _firestore
-              .collection(_merchantsCollectionPath)
-              .doc(userId)
-              .get();
+      await _firestore
+          .collection(_merchantsCollectionPath)
+          .doc(userId)
+          .get();
 
       UserModel? user = await _userService.getUser(userId);
 
@@ -61,8 +61,8 @@ class MerchantService {
         .snapshots()
         .map(
           (snapshot) =>
-              snapshot.docs.map((doc) => MenuModel.fromFirestore(doc)).toList(),
-        );
+          snapshot.docs.map((doc) => MenuModel.fromFirestore(doc)).toList(),
+    );
   }
 
   // Add Menu
@@ -245,37 +245,34 @@ class MerchantService {
     }
   }
 
-  // Fungsi untuk membuat/update data merchant dasar jika belum ada
-  Future<void> ensureMerchantDataExists(
-    String userId,
-    String userName,
-    String? userPhotoUrl,
-  ) async {
-    final merchantDocRef = _firestore
-        .collection(_merchantsCollectionPath)
-        .doc(userId);
-    final merchantDoc = await merchantDocRef.get();
-
-    if (!merchantDoc.exists) {
-      await merchantDocRef.set({
-        // 'name': userName,
-        // 'photoUrl': userPhotoUrl,
-        'description': 'Deskripsi toko belum diatur.',
-        'openHours': '08.00 - 17.00',
-      });
-    }
+  // Get all merchants
+  Stream<List<MerchantModel>> getMerchants() {
+    return _firestore.collection('merchants').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return MerchantModel.fromMap({
+          'id': doc.id,
+          ...data,
+        });
+      }).toList();
+    });
   }
 
-  // Update Merchant Profile
-  Future<void> updateMerchantProfile(String merchantId, Map<String, dynamic> data) async {
+  // Get merchant by ID
+  Future<MerchantModel?> getMerchantById(String merchantId) async {
     try {
-      await _firestore
-          .collection(_merchantsCollectionPath)
-          .doc(merchantId)
-          .update(data);
+      final doc = await _firestore.collection('merchants').doc(merchantId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        return MerchantModel.fromMap({
+          'id': doc.id,
+          ...data,
+        });
+      }
+      return null;
     } catch (e) {
-      print("Error updating merchant profile: $e");
-      rethrow;
+      print('Error getting merchant: $e');
+      return null;
     }
   }
 }

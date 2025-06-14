@@ -28,86 +28,134 @@ Widget sellerCard(BuildContext context, Merchant seller) {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Merchant image
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: AssetImage(seller.imagePath!),
-                fit: BoxFit.cover,
-              ),
-            ),
+          // Foto/logo merchant
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: seller.imagePath != null
+                ? Image.network(
+                    seller.imagePath!,
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 70,
+                      height: 70,
+                      color: Colors.grey[200],
+                      child: Icon(
+                        Icons.store,
+                        size: 40,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey[200],
+                    child: Icon(
+                      Icons.store,
+                      size: 40,
+                      color: Colors.grey[400],
+                    ),
+                  ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
 
-          // Merchant info
+          // Info merchant
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  seller.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        seller.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    // Jarak (dummy)
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.amber, size: 18),
+                        const SizedBox(width: 2),
+                        Text(
+                          '2.3km', // Menggunakan hardcode 2.3km seperti di UI contoh
+                          style: TextStyle(
+                            color: Colors.amber[800],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   seller.description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  seller.openHours!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.green,
-                    fontWeight: FontWeight.w500,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 13,
                   ),
+                ),
+                const SizedBox(height: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFE3E7FD),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.access_time, color: Color(0xFF6C63FF), size: 16),
+                              const SizedBox(width: 4),
+                              Text(
+                                seller.openHours ?? 'Tidak tersedia',
+                                style: const TextStyle(
+                                  color: Color(0xFF6C63FF),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF6C63FF),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+                        minimumSize: const Size(0, 32),
+                        elevation: 0,
+                      ),
+                      child: const Text('Go'),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-
-          // Distance and arrow
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.orange,
-                    size: 16,
-                  ),
-                  Text(
-                    seller.distance!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
-              ),
-            ],
           ),
         ],
       ),

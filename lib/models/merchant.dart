@@ -25,9 +25,10 @@ class Merchant {
     return Merchant(
       id: data['id'],
       imagePath: data['photoUrl'],
-      location: LatLng(data['lat'], data['lng']),
       name: data['name'],
-      description: data['description'],
+      description: data['description'] ?? '',
+      openHours: data['openHours'],
+      // Lokasi dan jarak akan dihitung nanti jika diperlukan
     );
   }
 
@@ -35,10 +36,9 @@ class Merchant {
     return {
       'id': id,
       'photoUrl': imagePath,
-      'lat': location?.latitude,
-      'lng': location?.longitude,
       'name': name,
       'description': description,
+      'openHours': openHours,
     };
   }
 
@@ -50,7 +50,6 @@ class Merchant {
     return decoded.map((e) => Merchant.fromMap(e)).toList();
   }
 }
-
 // Data dummy untuk list penjual
 final List<Merchant> sellers = [
   Merchant(
@@ -90,3 +89,4 @@ final List<Merchant> sellers = [
     openHours: '9:00 AM - 8:00 PM',
   ),
 ];
+

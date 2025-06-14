@@ -41,4 +41,14 @@ class MerchantModel {
       'openHours': openHours,
     };
   }
+
+  factory MerchantModel.fromMap(Map<String, dynamic> data) {
+    return MerchantModel(
+      uid: data['id'] ?? '',
+      name: data['name'] ?? '',
+      photoUrl: data['photoUrl'],
+      description: data['description'] ?? '',
+      openHours: data['openHours'] ?? 'N/A',
+    );
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wargo/models/merchant/merchant_model.dart';
+import 'package:wargo/screens/merchant/profile_screen.dart';
 
 class MerchantProfileCard extends StatelessWidget {
   final MerchantModel merchant;
@@ -93,10 +94,10 @@ class MerchantProfileCard extends StatelessWidget {
                       icon: const Icon(Icons.edit, size: 18),
                       label: const Text('Edit Profil'),
                       onPressed: () {
-                        // TODO: Implement navigation to edit merchant profile screen
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Fitur edit profil belum tersedia.'),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileScreen(),
                           ),
                         );
                       },
