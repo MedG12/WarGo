@@ -68,10 +68,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final user = authService.currentUser;
-      
+
       if (user != null) {
         String? newPhotoUrl = _currentPhotoUrl;
-        
+
         // Upload foto baru jika ada
         if (profileImageFile != null) {
           newPhotoUrl = await _storageService.uploadImage(
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             bucketName: 'gerobakgo',
             path: 'merchants/${user.uid}',
           );
-          
+
           // Hapus foto lama jika ada
           if (_currentPhotoUrl != null) {
             final oldPath = _storageService.extractPathFromUrl(
@@ -95,13 +95,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         }
 
-        // Update display name dan photo URL di Firebase Auth
         await user.updateDisplayName(nameController.text);
         if (newPhotoUrl != null) {
           await user.updatePhotoURL(newPhotoUrl);
         }
-        
-        // Update data di Firestore
+
         await _merchantService.updateMerchantProfile(
           user.uid,
           {
@@ -129,7 +127,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       await authService.signOut();
-      // Navigasi akan ditangani oleh AuthService melalui authStateChanges
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal logout: $e')),
@@ -139,30 +136,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUser;
+   // final authService = Provider.of<AuthService>(context);
+   // final user = authService.currentUser;
 
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: const Text('Profil Merchant', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.red),
+            onPressed: _signOut,
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Profil Merchant',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.logout, color: Colors.red),
-                    onPressed: _signOut,
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 10),
             // Profile Photo
             Stack(
@@ -172,8 +165,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   backgroundImage: profileImageFile != null
                       ? FileImage(profileImageFile!)
                       : (_currentPhotoUrl != null
-                          ? NetworkImage(_currentPhotoUrl!)
-                          : const NetworkImage('https://placekitten.com/200/200')) as ImageProvider,
+                      ? NetworkImage(_currentPhotoUrl!)
+                      : const NetworkImage('https://placekitten.com/200/200')) as ImageProvider,
                 ),
                 Positioned(
                   bottom: 0,
@@ -284,22 +277,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
                 onPressed: _isLoading ? null : _updateProfile,
-                icon: _isLoading 
+                icon: _isLoading
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
                     : const Icon(Icons.edit, size: 18),
                 label: Text(_isLoading ? 'Memperbarui...' : 'Edit Profile'),
               ),
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
-} 
+}
