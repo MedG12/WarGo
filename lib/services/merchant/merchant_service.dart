@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:wargo/models/merchant/merchant_model.dart';
 import 'package:wargo/models/merchant/menu_model.dart';
 import 'package:wargo/models/merchant/user_model.dart';
 import 'package:wargo/services/merchant/storage_service.dart';
 import 'package:wargo/services/merchant/user_service.dart';
+import 'package:wargo/models/merchant.dart';
 
 class MerchantService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,56 +16,21 @@ class MerchantService {
   final String _menusSubcollectionName = 'menus';
   final String _supabaseBucketName = 'gerobakgo';
 
-  // Get Merchant Profile
-  // Future<MerchantModel?> getMerchantProfile(String userId) async {
-  //   try {
-  //     DocumentSnapshot merchantDoc =
-  //         await _firestore
-  //             .collection(_merchantsCollectionPath)
-  //             .doc(userId)
-  //             .get();
+  // Get Merchant Profile Stream
+  Stream<MerchantModel?> getMerchantProfile(String userId) async* {
+    try {
+      UserModel? user = await _userService.getUser(userId);
+      if (user == null) {
+        yield null;
+        return;
+      }
 
-  //     UserModel? user = await _userService.getUser(userId);
-
-  //     if (merchantDoc.exists && user != null) {
-  //       final merchantData = merchantDoc.data() as Map<String, dynamic>?;
-
-  //       String shopName = user.name;
-  //       if (merchantData != null &&
-  //           merchantData.containsKey('name') &&
-  //           merchantData['name'] != null) {
-  //         shopName = merchantData['name'] as String;
-  //       }
-
-  //       String? shopPhotoUrl = user.photoUrl;
-  //       if (merchantData != null &&
-  //           merchantData.containsKey('photoUrl') &&
-  //           merchantData['photoUrl'] != null) {
-  //         shopPhotoUrl = merchantData['photoUrl'] as String?;
-  //       }
-
-  //       return MerchantModel.fromFirestore(merchantDoc, shopName, shopPhotoUrl);
-  //     }
-  //     return null;
-  //   } catch (e) {
-  //     print("Error getting merchant profile: $e");
-  //     return null;
-  //   }
-  // }
-
-  // Stream Merchant Profile
-  Stream<MerchantModel?> getMerchantProfile(String userId) {
-    return _firestore
-        .collection(_merchantsCollectionPath)
-        .doc(userId)
-        .snapshots()
-        .asyncMap((snapshot) async {
-          if (!snapshot.exists) return null;
-
-          UserModel? user = await _userService.getUser(userId);
-          if (user == null) return null;
-
-          final merchantData = snapshot.data() as Map<String, dynamic>?;
+      await for (final doc in _firestore
+          .collection(_merchantsCollectionPath)
+          .doc(userId)
+          .snapshots()) {
+        if (doc.exists) {
+          final merchantData = doc.data() as Map<String, dynamic>?;
 
           String shopName = user.name;
           if (merchantData != null &&
@@ -79,8 +46,15 @@ class MerchantService {
             shopPhotoUrl = merchantData['photoUrl'] as String?;
           }
 
-          return MerchantModel.fromFirestore(snapshot, shopName, shopPhotoUrl);
-        });
+          yield MerchantModel.fromFirestore(doc, shopName, shopPhotoUrl);
+        } else {
+          yield null;
+        }
+      }
+    } catch (e) {
+      print("Error in merchant profile stream: $e");
+      yield null;
+    }
   }
 
   // Stream Merchant Menus
@@ -295,6 +269,76 @@ class MerchantService {
         'description': 'Deskripsi toko belum diatur.',
         'openHours': '08.00 - 17.00',
       });
+    }
+  }
+
+  Future<void> updateMerchantProfile({
+    required String userId,
+    required String name,
+    required String description,
+    required String openHours,
+    String? photoUrl,
+  }) async {
+    try {
+      // Update data merchant di collection merchants
+      final merchantData = {
+        'name': name,
+        'description': description,
+        'openHours': openHours,
+        'photoUrl': photoUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
+          .collection(_merchantsCollectionPath)
+          .doc(userId)
+          .update(merchantData);
+
+      // Update data user di collection users
+      final userData = {
+        'name': name,
+        'photoUrl': photoUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .update(userData);
+    } catch (e) {
+      print('Error updating merchant profile: $e');
+      rethrow;
+    }
+  }
+
+  Stream<List<MerchantModel>> getMerchants() async* {
+    try {
+      await for (final snapshot in _firestore.collection(_merchantsCollectionPath).snapshots()) {
+        List<MerchantModel> merchants = [];
+        
+        for (final doc in snapshot.docs) {
+          final user = await _userService.getUser(doc.id);
+          if (user != null) {
+            final data = doc.data();
+            String shopName = user.name;
+            if (data.containsKey('name') && data['name'] != null) {
+              shopName = data['name'] as String;
+            }
+
+            String? shopPhotoUrl = user.photoUrl;
+            if (data.containsKey('photoUrl') && data['photoUrl'] != null) {
+              shopPhotoUrl = data['photoUrl'] as String?;
+            }
+
+            merchants.add(MerchantModel.fromFirestore(doc, shopName, shopPhotoUrl));
+          }
+        }
+        
+        yield merchants;
+      }
+    } catch (e) {
+      print("Error getting merchants: $e");
+      yield [];
     }
   }
 }

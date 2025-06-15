@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wargo/models/merchant.dart';
-import 'package:wargo/models/menu_item.dart';
+import 'package:wargo/models/merchant/menu_model.dart';
+import 'package:wargo/services/merchant/merchant_service.dart';
 
 const Color primaryColor = Color(0xFF0E2148);
 const Color goButtonColor = Color(0xFF5825DF);
@@ -21,13 +22,20 @@ String formatRupiah(int amount) {
   return 'Rp $formattedResult';
 }
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final Merchant merchant;
 
   const DetailScreen({
     Key? key,
     required this.merchant,
   }) : super(key: key);
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  final MerchantService _merchantService = MerchantService();
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,11 @@ class DetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       image: DecorationImage(
-                        image: AssetImage(merchant.imagePath!),
+                        image: (widget.merchant.imagePath != null &&
+                                (widget.merchant.imagePath!.startsWith('http') ||
+                                    widget.merchant.imagePath!.startsWith('https')))
+                            ? NetworkImage(widget.merchant.imagePath!) as ImageProvider
+                            : const AssetImage('assets/images/placeholder.png'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -93,7 +105,7 @@ class DetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          merchant.name,
+                          widget.merchant.name,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -102,7 +114,7 @@ class DetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          merchant.description,
+                          widget.merchant.description,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -113,21 +125,26 @@ class DetailScreen extends StatelessWidget {
                         // GO button di bawah deskripsi
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: goButtonColor,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Text(
-                              'GO',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                          child: GestureDetector(
+                            onTap: () {
+                              print('GO button tapped!'); // Action for GO button
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: goButtonColor,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Text(
+                                'GO',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -151,7 +168,7 @@ class DetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            merchant.distance!,
+                            widget.merchant.distance!,
                             style: const TextStyle(
                               fontSize: 14, // Diperbesar dari 12 ke 14
                               fontWeight: FontWeight.w600,
@@ -209,66 +226,91 @@ class DetailScreen extends StatelessWidget {
 
                   // Menu list
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: menuItems.length,
-                      itemBuilder: (context, index) {
-                        final menuItem = menuItems[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          child: Row(
-                            children: [
-                              // Menu image
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: AssetImage(menuItem.imagePath),
-                                    fit: BoxFit.cover,
+                    child: StreamBuilder<List<MenuModel>>(
+                      stream: _merchantService.getMerchantMenus(widget.merchant.id),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+
+                        final menus = snapshot.data ?? [];
+
+                        if (menus.isEmpty) {
+                          return const Center(
+                            child: Text('Belum ada menu yang tersedia'),
+                          );
+                        }
+
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: menus.length,
+                          itemBuilder: (context, index) {
+                            final menuItem = menus[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              child: Row(
+                                children: [
+                                  // Menu image
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: (menuItem.photoUrl != null &&
+                                                (menuItem.photoUrl!.startsWith('http') ||
+                                                    menuItem.photoUrl!.startsWith('https')))
+                                            ? NetworkImage(menuItem.photoUrl!) as ImageProvider
+                                            : const AssetImage('assets/images/placeholder.png'),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
-                              // Menu info
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      menuItem.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
+                                  // Menu info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          menuItem.name,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          menuItem.description,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          formatRupiah(menuItem.price.toInt()),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      menuItem.description,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                      // Hapus maxLines dan overflow agar tampil semua
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-
-                              // Price
-                              Text(
-                                formatRupiah(menuItem.price),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
                     ),

@@ -36,7 +36,11 @@ Widget sellerCard(BuildContext context, Merchant seller) {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(seller.imagePath!),
+                image: (seller.imagePath != null &&
+                        (seller.imagePath!.startsWith('http') ||
+                            seller.imagePath!.startsWith('https')))
+                    ? NetworkImage(seller.imagePath!) as ImageProvider
+                    : const AssetImage('assets/images/placeholder.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -68,7 +72,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  seller.openHours!,
+                  seller.openHours ?? 'Jam buka tidak tersedia',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.green,
@@ -92,7 +96,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
                     size: 16,
                   ),
                   Text(
-                    seller.distance!,
+                    seller.distance ?? 'Jarak tidak diketahui',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

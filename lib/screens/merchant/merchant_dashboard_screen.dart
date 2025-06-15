@@ -19,20 +19,30 @@ class MerchantDashboardScreen extends StatefulWidget {
 class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> {
   late String _merchantId;
   late MerchantService _merchantService;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
 
+  Future<void> _initializeData() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     _merchantId = authService.currentUser!.uid;
     _merchantService = Provider.of<MerchantService>(context, listen: false);
 
-    _merchantService.ensureMerchantDataExists(
+    await _merchantService.ensureMerchantDataExists(
       _merchantId,
       authService.currentUser!.displayName ?? 'Merchant Baru',
       authService.currentUser!.photoURL,
     );
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _showAddMenuForm(BuildContext context) {
@@ -46,132 +56,103 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 24.0,
-                left: 16.0,
-                bottom: 8.0,
-              ),
-              child: Text(
-                'Dashboard',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: StreamBuilder<MerchantModel?>(
-              stream: _merchantService.getMerchantProfile(_merchantId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 24.0,
+                      left: 16.0,
+                      bottom: 8.0,
                     ),
-                  );
-                }
-                if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data == null) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        snapshot.hasError
-                            ? 'Error: ${snapshot.error}'
-                            : 'Profil merchant tidak ditemukan.',
+                    child: Text(
+                      'Dashboard',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  );
-                }
-                final merchant = snapshot.data!;
-                return MerchantProfileCard(merchant: merchant);
-              },
-            ),
-          ),
-          // SliverToBoxAdapter(
-          //   child: FutureBuilder<MerchantModel?>(
-          //     future: _merchantService.getMerchantProfile(_merchantId),
-          //     builder: (context, snapshot) {
-          //       if (snapshot.connectionState == ConnectionState.waiting) {
-          //         return const Center(
-          //           child: Padding(
-          //             padding: EdgeInsets.all(20.0),
-          //             child: CircularProgressIndicator(),
-          //           ),
-          //         );
-          //       }
-          //       if (snapshot.hasError ||
-          //           !snapshot.hasData ||
-          //           snapshot.data == null) {
-          //         return Center(
-          //           child: Padding(
-          //             padding: const EdgeInsets.all(16.0),
-          //             child: Text(
-          //               snapshot.hasError
-          //                   ? 'Error: ${snapshot.error}'
-          //                   : 'Profil merchant tidak ditemukan.',
-          //             ),
-          //           ),
-          //         );
-          //       }
-          //       final merchant = snapshot.data!;
-          //       return MerchantProfileCard(merchant: merchant);
-          //     },
-          //   ),
-          // ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Text(
-                'Menu Saya',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-          ),
-          StreamBuilder<List<MenuModel>>(
-            stream: _merchantService.getMerchantMenus(_merchantId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (snapshot.hasError) {
-                return SliverToBoxAdapter(
-                  child: Center(child: Text('Error: ${snapshot.error}')),
-                );
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const SliverToBoxAdapter(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text('Belum ada menu. Tambahkan menu baru!'),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: StreamBuilder<MerchantModel?>(
+                    stream: _merchantService.getMerchantProfile(_merchantId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                      if (snapshot.hasError ||
+                          !snapshot.hasData ||
+                          snapshot.data == null) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              snapshot.hasError
+                                  ? 'Error: ${snapshot.error}'
+                                  : 'Profil merchant tidak ditemukan.',
+                            ),
+                          ),
+                        );
+                      }
+                      final merchant = snapshot.data!;
+                      return MerchantProfileCard(merchant: merchant);
+                    },
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: Text(
+                      'Menu Saya',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                );
-              }
-              final menus = snapshot.data!;
-              return SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final menu = menus[index];
-                  return MenuCard(menu: menu);
-                }, childCount: menus.length),
-              );
-            },
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
-        ],
-      ),
+                ),
+                StreamBuilder<List<MenuModel>>(
+                  stream: _merchantService.getMerchantMenus(_merchantId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SliverToBoxAdapter(
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return SliverToBoxAdapter(
+                        child: Center(child: Text('Error: ${snapshot.error}')),
+                      );
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text('Belum ada menu. Tambahkan menu baru!'),
+                          ),
+                        ),
+                      );
+                    }
+                    final menus = snapshot.data!;
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final menu = menus[index];
+                        return MenuCard(menu: menu);
+                      }, childCount: menus.length),
+                    );
+                  },
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 80)),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddMenuForm(context),
         backgroundColor: Theme.of(context).colorScheme.primary,

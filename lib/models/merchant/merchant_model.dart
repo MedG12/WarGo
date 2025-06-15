@@ -41,4 +41,14 @@ class MerchantModel {
       'openHours': openHours,
     };
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': uid,
+      'name': name,
+      'photoUrl': photoUrl,
+      'description': description,
+      'openHours': openHours,
+    };
+  }
 }

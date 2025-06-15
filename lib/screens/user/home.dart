@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/models/merchant.dart';
+import 'package:wargo/models/merchant/merchant_model.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
+import 'package:wargo/services/merchant/merchant_service.dart';
 import 'package:wargo/widgets/sellerCard.dart';
 
 // Definisikan warna utama
@@ -22,6 +24,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   AuthService authService = AuthService();
+  final MerchantService _merchantService = MerchantService();
+
   @override
   Widget build(BuildContext context) {
     String? currentCity = context.watch<LocationService>().currentCity;
@@ -108,23 +112,62 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverFillRemaining(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ), // Atur radius sesuai kebutuhan
-                child: Container(
-                  color: Colors.white, // Warna background container
-                  child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(top: 16, bottom: 16),
-                    itemCount: sellers.length,
-                    itemBuilder: (context, index) {
-                      return sellerCard(context, sellers[index]);
-                    },
+            StreamBuilder<List<MerchantModel>>(
+              stream: _merchantService.getMerchants(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    ),
+                  );
+                }
+
+                final merchants = snapshot.data ?? [];
+                if (merchants.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: Text('Belum ada merchant yang terdaftar'),
+                    ),
+                  );
+                }
+
+                return SliverFillRemaining(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      child: ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(top: 16, bottom: 16),
+                        itemCount: merchants.length,
+                        itemBuilder: (context, index) {
+                          final merchant = merchants[index];
+                          return sellerCard(
+                            context,
+                            Merchant(
+                              id: merchant.uid,
+                              name: merchant.name,
+                              description: merchant.description,
+                              imagePath: merchant.photoUrl,
+                              distance: '2.3km', // Static distance as requested
+                              openHours: merchant.openHours,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
