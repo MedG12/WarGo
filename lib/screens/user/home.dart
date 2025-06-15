@@ -7,12 +7,10 @@ import 'package:wargo/services/location_service.dart';
 import 'package:wargo/services/merchant/merchant_service.dart';
 import 'package:wargo/widgets/sellerCard.dart';
 
-// Definisikan warna utama
+// Warna
 const Color primaryColor = Color(0xFF0E2148);
-const Color textLightColor =
-    Colors.white; // Warna teks di atas background gelap
-const Color textDarkColor =
-    Colors.black87; // Warna teks di atas background terang
+const Color textLightColor = Colors.white;
+const Color textDarkColor = Colors.black87;
 const Color textMutedColor = Colors.grey;
 
 class HomeScreen extends StatefulWidget {
@@ -23,19 +21,49 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  AuthService authService = AuthService();
+  final AuthService authService = AuthService();
   final MerchantService _merchantService = MerchantService();
+  final SearchController _searchController = SearchController();
+
+  String _searchKeyword = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchKeyword = _searchController.text.toLowerCase();
+    });
+  }
+
+  List<MerchantModel> _filterMerchants(List<MerchantModel> merchants) {
+    if (_searchKeyword.isEmpty) return merchants;
+    return merchants.where((merchant) {
+      final name = merchant.name?.toLowerCase() ?? '';
+      return name.contains(_searchKeyword);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     String? currentCity = context.watch<LocationService>().currentCity;
-    SearchController _searchController = SearchController();
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 250, // Tinggi gambar
+              expandedHeight: 250,
               backgroundColor: primaryColor,
               floating: false,
               pinned: true,
@@ -49,19 +77,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       alignment: Alignment.topCenter,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      height: 300, // Sesuaikan tinggi gambar
+                      height: 300,
                     ),
                     Positioned(
                       bottom: 20,
                       left: 20,
                       right: 10,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "What's on",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: textLightColor,
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -69,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.location_on_sharp,
                                 color: Colors.redAccent,
                                 size: 30,
@@ -77,13 +104,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               Flexible(
                                 child: Text(
                                   currentCity ?? 'Please wait...',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: textLightColor,
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  softWrap: true,
-                                  overflow: TextOverflow.visible,
                                 ),
                               ),
                             ],
@@ -106,12 +131,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     IconButton(
                       icon: const Icon(Icons.search),
                       tooltip: 'Search',
-                      onPressed: () {},
+                      onPressed: () {
+                        // Optional jika ingin trigger search manual
+                        FocusScope.of(context).unfocus();
+                        setState(() {});
+                      },
                     ),
                   ],
                 ),
               ),
             ),
+
             StreamBuilder<List<MerchantModel>>(
               stream: _merchantService.getMerchants(),
               builder: (context, snapshot) {
@@ -130,10 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 final merchants = snapshot.data ?? [];
-                if (merchants.isEmpty) {
+                final filteredMerchants = _filterMerchants(merchants);
+
+                if (filteredMerchants.isEmpty) {
                   return const SliverFillRemaining(
                     child: Center(
-                      child: Text('Belum ada merchant yang terdaftar'),
+                      child: Text('Tidak ada merchant yang cocok.'),
                     ),
                   );
                 }
@@ -147,10 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                       child: ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 16, bottom: 16),
-                        itemCount: merchants.length,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        itemCount: filteredMerchants.length,
                         itemBuilder: (context, index) {
-                          final merchant = merchants[index];
+                          final merchant = filteredMerchants[index];
                           return sellerCard(
                             context,
                             Merchant(
@@ -158,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               name: merchant.name,
                               description: merchant.description,
                               imagePath: merchant.photoUrl,
-                              distance: '2.3km', // Static distance as requested
+                              distance: '2.3km',
                               openHours: merchant.openHours,
                             ),
                           );
