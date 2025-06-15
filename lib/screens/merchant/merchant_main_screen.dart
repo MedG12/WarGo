@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wargo/screens/map_screen.dart';
+import 'package:wargo/screens/user/chats_screen.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/screens/merchant/merchant_dashboard_screen.dart';
 
@@ -15,8 +17,8 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     MerchantDashboardScreen(), // Tab Home (Dashboard)
-    Center(child: Text('Halaman Peta (Merchant)')),
-    Center(child: Text('Halaman Chat (Merchant)')),
+    MapScreen(),
+    ChatsScreen(),
     Center(child: Text('Halaman Profil (Merchant)')),
   ];
 
