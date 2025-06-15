@@ -15,40 +15,72 @@ class MerchantService {
   final String _supabaseBucketName = 'gerobakgo';
 
   // Get Merchant Profile
-  Future<MerchantModel?> getMerchantProfile(String userId) async {
-    try {
-      DocumentSnapshot merchantDoc =
-          await _firestore
-              .collection(_merchantsCollectionPath)
-              .doc(userId)
-              .get();
+  // Future<MerchantModel?> getMerchantProfile(String userId) async {
+  //   try {
+  //     DocumentSnapshot merchantDoc =
+  //         await _firestore
+  //             .collection(_merchantsCollectionPath)
+  //             .doc(userId)
+  //             .get();
 
-      UserModel? user = await _userService.getUser(userId);
+  //     UserModel? user = await _userService.getUser(userId);
 
-      if (merchantDoc.exists && user != null) {
-        final merchantData = merchantDoc.data() as Map<String, dynamic>?;
+  //     if (merchantDoc.exists && user != null) {
+  //       final merchantData = merchantDoc.data() as Map<String, dynamic>?;
 
-        String shopName = user.name;
-        if (merchantData != null &&
-            merchantData.containsKey('name') &&
-            merchantData['name'] != null) {
-          shopName = merchantData['name'] as String;
-        }
+  //       String shopName = user.name;
+  //       if (merchantData != null &&
+  //           merchantData.containsKey('name') &&
+  //           merchantData['name'] != null) {
+  //         shopName = merchantData['name'] as String;
+  //       }
 
-        String? shopPhotoUrl = user.photoUrl;
-        if (merchantData != null &&
-            merchantData.containsKey('photoUrl') &&
-            merchantData['photoUrl'] != null) {
-          shopPhotoUrl = merchantData['photoUrl'] as String?;
-        }
+  //       String? shopPhotoUrl = user.photoUrl;
+  //       if (merchantData != null &&
+  //           merchantData.containsKey('photoUrl') &&
+  //           merchantData['photoUrl'] != null) {
+  //         shopPhotoUrl = merchantData['photoUrl'] as String?;
+  //       }
 
-        return MerchantModel.fromFirestore(merchantDoc, shopName, shopPhotoUrl);
-      }
-      return null;
-    } catch (e) {
-      print("Error getting merchant profile: $e");
-      return null;
-    }
+  //       return MerchantModel.fromFirestore(merchantDoc, shopName, shopPhotoUrl);
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     print("Error getting merchant profile: $e");
+  //     return null;
+  //   }
+  // }
+
+  // Stream Merchant Profile
+  Stream<MerchantModel?> getMerchantProfile(String userId) {
+    return _firestore
+        .collection(_merchantsCollectionPath)
+        .doc(userId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+          if (!snapshot.exists) return null;
+
+          UserModel? user = await _userService.getUser(userId);
+          if (user == null) return null;
+
+          final merchantData = snapshot.data() as Map<String, dynamic>?;
+
+          String shopName = user.name;
+          if (merchantData != null &&
+              merchantData.containsKey('name') &&
+              merchantData['name'] != null) {
+            shopName = merchantData['name'] as String;
+          }
+
+          String? shopPhotoUrl = user.photoUrl;
+          if (merchantData != null &&
+              merchantData.containsKey('photoUrl') &&
+              merchantData['photoUrl'] != null) {
+            shopPhotoUrl = merchantData['photoUrl'] as String?;
+          }
+
+          return MerchantModel.fromFirestore(snapshot, shopName, shopPhotoUrl);
+        });
   }
 
   // Stream Merchant Menus

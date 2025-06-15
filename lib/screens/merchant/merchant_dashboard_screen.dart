@@ -64,8 +64,8 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: FutureBuilder<MerchantModel?>(
-              future: _merchantService.getMerchantProfile(_merchantId),
+            child: StreamBuilder<MerchantModel?>(
+              stream: _merchantService.getMerchantProfile(_merchantId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -94,6 +94,37 @@ class _MerchantDashboardScreenState extends State<MerchantDashboardScreen> {
               },
             ),
           ),
+          // SliverToBoxAdapter(
+          //   child: FutureBuilder<MerchantModel?>(
+          //     future: _merchantService.getMerchantProfile(_merchantId),
+          //     builder: (context, snapshot) {
+          //       if (snapshot.connectionState == ConnectionState.waiting) {
+          //         return const Center(
+          //           child: Padding(
+          //             padding: EdgeInsets.all(20.0),
+          //             child: CircularProgressIndicator(),
+          //           ),
+          //         );
+          //       }
+          //       if (snapshot.hasError ||
+          //           !snapshot.hasData ||
+          //           snapshot.data == null) {
+          //         return Center(
+          //           child: Padding(
+          //             padding: const EdgeInsets.all(16.0),
+          //             child: Text(
+          //               snapshot.hasError
+          //                   ? 'Error: ${snapshot.error}'
+          //                   : 'Profil merchant tidak ditemukan.',
+          //             ),
+          //           ),
+          //         );
+          //       }
+          //       final merchant = snapshot.data!;
+          //       return MerchantProfileCard(merchant: merchant);
+          //     },
+          //   ),
+          // ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(
