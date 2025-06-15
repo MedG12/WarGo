@@ -76,13 +76,13 @@ class _UserMainScreenState extends State<UserMainScreen> {
             curve: Curves.easeInOut,
           );
         },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF0E2148),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color(0xFF483AA0),
+        unselectedItemColor: Colors.grey[600],
         showSelectedLabels: false,
         showUnselectedLabels: false,
-        elevation: 10,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 8.0,
         items: [
           BottomNavigationBarItem(
             icon: navItem(Icons.home_outlined, Icons.home, _currentIndex == 0),

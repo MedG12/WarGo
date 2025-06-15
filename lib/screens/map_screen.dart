@@ -48,54 +48,88 @@ class _MapScreenState extends State<MapScreen> {
         builder: (_) {
           return Padding(
             padding: const EdgeInsets.all(20),
-            child: Container(
-              width: double.infinity,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage:
-                        merchant.imagePath != null &&
-                                merchant.imagePath!.isNotEmpty
-                            ? NetworkImage(merchant.imagePath!)
-                            : null,
-                    child:
-                        merchant.imagePath == null ||
-                                merchant.imagePath!.isEmpty
-                            ? Text(
-                              getInitials(merchant.name),
-                              style: TextStyle(fontSize: 24),
-                            )
-                            : null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Avatar
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage:
+                      merchant.imagePath != null &&
+                              merchant.imagePath!.isNotEmpty
+                          ? NetworkImage(merchant.imagePath!)
+                          : null,
+                  child:
+                      merchant.imagePath == null || merchant.imagePath!.isEmpty
+                          ? Text(
+                            getInitials(merchant.name),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          )
+                          : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Name
+                Text(
+                  merchant.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    merchant.name,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    merchant.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                // Description
+                Text(
+                  merchant.description,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+
+                // Button: Ingatkan Saya
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.notifications_active),
+                    label: const Text('Ingatkan Saya'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    icon: Icon(Icons.notifications_active),
-                    label: Text('Ingatkan Saya'),
                     onPressed: () {
                       proximityService.addTaggedMerchant(merchant.id);
                       Navigator.pop(context);
                     },
                   ),
-                  ElevatedButton.icon(
-                    iconAlignment: IconAlignment.end, // Pastikan ikon di kanan
+                ),
+                const SizedBox(height: 12),
+
+                // Button: Kirim Pesan
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
                     icon: const Icon(Icons.send),
                     label: const Text('Kirim Pesan'),
+                    iconAlignment: IconAlignment.end,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.grey.shade100,
+                      foregroundColor: Colors.black87,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -109,8 +143,8 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
