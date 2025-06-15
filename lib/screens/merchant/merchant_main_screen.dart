@@ -14,27 +14,27 @@ class MerchantMainScreen extends StatefulWidget {
 }
 
 class _MerchantMainScreenState extends State<MerchantMainScreen> {
+  late PageController _pageController;
   int _selectedIndex = 0;
 
-  List<Widget> get _widgetOptions => [
-    MerchantDashboardScreen(
-      onNavigateToProfile: () => _onItemTapped(3),
-    ), // Tab Home (Dashboard)
-    MapScreen(),
-    ChatsScreen(),
-    MerchantProfileScreen(), // Tab Profile
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
   }
 
   @override
   void dispose() {
-    // Cleanup Geolocator jika diperlukan
+    _pageController.dispose();
     super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -43,7 +43,6 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // Tampilkan dialog konfirmasi sebelum keluar
         final shouldPop = await showDialog<bool>(
           context: context,
           builder:
@@ -67,9 +66,32 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
         return shouldPop ?? false;
       },
       child: Scaffold(
-        body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            setState(() => _selectedIndex = index);
+          },
+          children: [
+            MerchantDashboardScreen(
+              onNavigateToProfile: () => _onItemTapped(3),
+            ),
+            MapScreen(),
+            ChatsScreen(),
+            MerchantProfileScreen(),
+          ],
+        ),
         bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: const Color(0xFF483AA0),
+          unselectedItemColor: Colors.grey[600],
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          elevation: 8.0,
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_filled),
               label: 'Home',
@@ -84,15 +106,6 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
             ),
             BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Profile'),
           ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: const Color(0xFF483AA0),
-          unselectedItemColor: Colors.grey[600],
-          onTap: _onItemTapped,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          elevation: 8.0,
         ),
       ),
     );

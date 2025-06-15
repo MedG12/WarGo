@@ -107,7 +107,7 @@ class MerchantProfileCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        merchant.openHours,
+                        merchant.openHours   ,
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],

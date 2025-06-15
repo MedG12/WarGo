@@ -299,15 +299,35 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                         )
                         : CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.blueAccent,
-                          child: Text(
-                            getInitials(displayName),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          backgroundImage:
+                              profileImagePath != null
+                                  ? FileImage(File(profileImagePath!))
+                                  : (Provider.of<AuthService>(
+                                            context,
+                                          ).currentUser?.photoURL !=
+                                          null
+                                      ? NetworkImage(
+                                            Provider.of<AuthService>(
+                                              context,
+                                            ).currentUser!.photoURL!,
+                                          )
+                                          as ImageProvider
+                                      : null),
+                          child:
+                              profileImagePath == null &&
+                                      Provider.of<AuthService>(
+                                            context,
+                                          ).currentUser?.photoURL ==
+                                          null
+                                  ? Text(
+                                    getInitials(displayName),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                  : null, // Jangan tampilkan child jika ada gambar
                         ),
                     Positioned(
                       bottom: 0,

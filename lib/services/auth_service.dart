@@ -138,6 +138,7 @@ class AuthService extends ChangeNotifier {
       await _auth.signInWithCredential(credential);
 
       final userCredential = await _auth.signInWithCredential(credential);
+      _isCreatingUser = true;
       try {
         await _userService.createUser(
           uid: userCredential.user!.uid,
@@ -148,6 +149,8 @@ class AuthService extends ChangeNotifier {
         );
       } catch (e) {
         return 'error $e';
+      }finally {
+        _isCreatingUser = false;
       }
 
       await _fetchRole();

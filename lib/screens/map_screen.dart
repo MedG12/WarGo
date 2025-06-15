@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/models/merchant.dart';
+import 'package:wargo/screens/user/chat_details_screen.dart';
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
 import 'package:wargo/services/notification_service.dart';
@@ -89,6 +90,23 @@ class _MapScreenState extends State<MapScreen> {
                     onPressed: () {
                       proximityService.addTaggedMerchant(merchant.id);
                       Navigator.pop(context);
+                    },
+                  ),
+                  ElevatedButton.icon(
+                    iconAlignment: IconAlignment.end, // Pastikan ikon di kanan
+                    icon: const Icon(Icons.send),
+                    label: const Text('Kirim Pesan'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ChatDetailsScreen(
+                                title: merchant.name,
+                                peerId: merchant.id,
+                              ),
+                        ),
+                      );
                     },
                   ),
                 ],
