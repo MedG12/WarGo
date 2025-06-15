@@ -49,9 +49,12 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
     final user = authService.currentUser;
     if (user != null) {
       try {
-        final merchantDoc = await _merchantService.getMerchantProfile(user.uid).first;
+        final merchantDoc =
+            await _merchantService.getMerchantProfile(user.uid).first;
         if (merchantDoc != null) {
-          print('Loading merchant data: ${merchantDoc.toJson()}'); // Debug print
+          print(
+            'Loading merchant data: ${merchantDoc.toJson()}',
+          ); // Debug print
           setState(() {
             nameController.text = merchantDoc.name;
             descriptionController.text = merchantDoc.description;
@@ -60,7 +63,9 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
               if (times.length == 2) {
                 openTime = _parseTimeString(times[0]);
                 closeTime = _parseTimeString(times[1]);
-                print('Parsed times - Open: $openTime, Close: $closeTime'); // Debug print
+                print(
+                  'Parsed times - Open: $openTime, Close: $closeTime',
+                ); // Debug print
               }
             }
           });
@@ -76,7 +81,7 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
   TimeOfDay? _parseTimeString(String timeStr) {
     try {
       print('Parsing time string: $timeStr'); // Debug print
-      
+
       // Coba format "HH:mm"
       if (timeStr.contains(':')) {
         final parts = timeStr.split(':');
@@ -88,7 +93,7 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
           return time;
         }
       }
-      
+
       // Coba format "HH.mm"
       if (timeStr.contains('.')) {
         final parts = timeStr.split('.');
@@ -100,7 +105,7 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
           return time;
         }
       }
-      
+
       print('Could not parse time string: $timeStr');
     } catch (e) {
       print('Error parsing time: $e');
@@ -117,7 +122,10 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
   Future<void> _selectTime(BuildContext context, bool isOpenTime) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: isOpenTime ? (openTime ?? TimeOfDay.now()) : (closeTime ?? TimeOfDay.now()),
+      initialTime:
+          isOpenTime
+              ? (openTime ?? TimeOfDay.now())
+              : (closeTime ?? TimeOfDay.now()),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -146,9 +154,9 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
 
   Future<void> _updateProfile() async {
     if (nameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama tidak boleh kosong')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nama tidak boleh kosong')));
       return;
     }
 
@@ -164,7 +172,7 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final user = authService.currentUser;
-      
+
       if (user == null) {
         throw Exception('User tidak ditemukan');
       }
@@ -180,7 +188,8 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
       }
 
       // Format jam buka
-      final openHours = '${_formatTimeOfDay(openTime!)} - ${_formatTimeOfDay(closeTime!)}';
+      final openHours =
+          '${_formatTimeOfDay(openTime!)} - ${_formatTimeOfDay(closeTime!)}';
 
       // Update data di Firestore
       await _merchantService.updateMerchantProfile(
@@ -206,9 +215,9 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui profil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui profil: $e')));
       }
     } finally {
       if (mounted) {
@@ -234,33 +243,44 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Edit Profil Merchant'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-        ),
+        // appBar: AppBar(
+        //   title: const Text('Edit Profil Merchant'),
+        //   leading: IconButton(
+        //     icon: const Icon(Icons.arrow_back),
+        //     onPressed: () => Navigator.pop(context, false),
+        //   ),
+        // ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
               children: [
                 // Header
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'Profil Merchant',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.logout, color: Colors.red),
                         onPressed: () async {
-                          await Provider.of<AuthService>(context, listen: false).signOut();
+                          await Provider.of<AuthService>(
+                            context,
+                            listen: false,
+                          ).signOut();
                           if (mounted) {
-                            Navigator.of(context).pushReplacementNamed('/login');
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed('/login');
                           }
                         },
                       ),
@@ -273,11 +293,23 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: profileImagePath != null
-                          ? FileImage(File(profileImagePath!))
-                          : (Provider.of<AuthService>(context).currentUser?.photoURL != null
-                              ? NetworkImage(Provider.of<AuthService>(context).currentUser!.photoURL!) as ImageProvider
-                              : const NetworkImage('https://placekitten.com/200/200') as ImageProvider),
+                      backgroundImage:
+                          profileImagePath != null
+                              ? FileImage(File(profileImagePath!))
+                              : (Provider.of<AuthService>(
+                                        context,
+                                      ).currentUser?.photoURL !=
+                                      null
+                                  ? NetworkImage(
+                                        Provider.of<AuthService>(
+                                          context,
+                                        ).currentUser!.photoURL!,
+                                      )
+                                      as ImageProvider
+                                  : const NetworkImage(
+                                        'https://placekitten.com/200/200',
+                                      )
+                                      as ImageProvider),
                     ),
                     Positioned(
                       bottom: 0,
@@ -297,28 +329,42 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 // Name Field
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 4,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Nama Toko', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Nama Toko',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 6),
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Color(0xFF5D42D1)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF5D42D1),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF5D42D1), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF5D42D1),
+                              width: 2,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -328,23 +374,35 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                 ),
                 // Email Field
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Email',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 6),
                       TextField(
                         controller: emailController,
                         enabled: false,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: const BorderSide(color: Colors.grey),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.grey, width: 2),
+                            borderSide: const BorderSide(
+                              color: Colors.grey,
+                              width: 2,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -354,23 +412,37 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                 ),
                 // Description Field
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Deskripsi', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Deskripsi',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 6),
                       TextField(
                         controller: descriptionController,
                         maxLines: 3,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: Color(0xFF5D42D1)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF5D42D1),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF5D42D1), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF5D42D1),
+                              width: 2,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -380,11 +452,17 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                 ),
                 // Open Hours Fields
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Jam Buka', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Jam Buka',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
@@ -392,15 +470,25 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                             child: InkWell(
                               onTap: () => _selectTime(context, true),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: const Color(0xFF5D42D1)),
+                                  border: Border.all(
+                                    color: const Color(0xFF5D42D1),
+                                  ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  openTime != null ? _formatTimeOfDay(openTime!) : 'Pilih jam buka',
+                                  openTime != null
+                                      ? _formatTimeOfDay(openTime!)
+                                      : 'Pilih jam buka',
                                   style: TextStyle(
-                                    color: openTime != null ? Colors.black : Colors.grey,
+                                    color:
+                                        openTime != null
+                                            ? Colors.black
+                                            : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -413,15 +501,25 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                             child: InkWell(
                               onTap: () => _selectTime(context, false),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: const Color(0xFF5D42D1)),
+                                  border: Border.all(
+                                    color: const Color(0xFF5D42D1),
+                                  ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  closeTime != null ? _formatTimeOfDay(closeTime!) : 'Pilih jam tutup',
+                                  closeTime != null
+                                      ? _formatTimeOfDay(closeTime!)
+                                      : 'Pilih jam tutup',
                                   style: TextStyle(
-                                    color: closeTime != null ? Colors.black : Colors.grey,
+                                    color:
+                                        closeTime != null
+                                            ? Colors.black
+                                            : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -438,22 +536,29 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
+                      iconColor: Colors.white,
                       minimumSize: const Size.fromHeight(48),
                       backgroundColor: const Color(0xFF5D42D1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
                     onPressed: isLoading ? null : _updateProfile,
-                    icon: isLoading 
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Icon(Icons.edit, size: 18),
-                    label: Text(isLoading ? 'Memperbarui...' : 'Edit Profile'),
+                    icon:
+                        isLoading
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                            : const Icon(Icons.edit, size: 18),
+                    label: Text(
+                      isLoading ? 'Memperbarui...' : 'Edit Profile',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -471,4 +576,4 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
     descriptionController.dispose();
     super.dispose();
   }
-} 
+}

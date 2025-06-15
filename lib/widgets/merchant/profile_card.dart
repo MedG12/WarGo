@@ -4,8 +4,13 @@ import 'package:wargo/screens/merchant/merchant_profile_screen.dart';
 
 class MerchantProfileCard extends StatelessWidget {
   final MerchantModel merchant;
+  final VoidCallback? onEditProfile;
 
-  const MerchantProfileCard({super.key, required this.merchant});
+  const MerchantProfileCard({
+    super.key,
+    required this.merchant,
+    this.onEditProfile,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,55 +25,58 @@ class MerchantProfileCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: merchant.photoUrl != null && merchant.photoUrl!.isNotEmpty
-                  ? Image.network(
-                      merchant.photoUrl!,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading image: $error');
-                        return Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.grey[200],
-                          child: Icon(
-                            Icons.storefront,
-                            size: 50,
-                            color: Colors.grey[400],
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
+              child:
+                  merchant.photoUrl != null && merchant.photoUrl!.isNotEmpty
+                      ? Image.network(
+                        merchant.photoUrl!,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('Error loading image: $error');
+                          return Container(
+                            width: 100,
+                            height: 100,
+                            color: Colors.grey[200],
+                            child: Icon(
+                              Icons.storefront,
+                              size: 50,
+                              color: Colors.grey[400],
                             ),
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10.0),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: 100,
+                            height: 100,
+                            color: Colors.grey[200],
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                      : Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Icon(
+                          Icons.storefront,
+                          size: 50,
+                          color: Colors.grey[400],
+                        ),
                       ),
-                      child: Icon(
-                        Icons.storefront,
-                        size: 50,
-                        color: Colors.grey[400],
-                      ),
-                    ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -110,14 +118,15 @@ class MerchantProfileCard extends StatelessWidget {
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.edit, size: 18),
                       label: const Text('Edit Profil'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MerchantProfileScreen(),
-                          ),
-                        );
-                      },
+                      onPressed: onEditProfile,
+                      // () {
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const MerchantProfileScreen(),
+                      //   ),
+                      // );
+                      // },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,

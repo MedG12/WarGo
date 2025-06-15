@@ -63,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 250,
-              backgroundColor: primaryColor,
+              expandedHeight: 250, // Tinggi gambar
+              backgroundColor: Colors.transparent,
               floating: false,
               pinned: true,
               toolbarHeight: 80,
@@ -153,9 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 if (snapshot.hasError) {
                   return SliverFillRemaining(
-                    child: Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    ),
+                    child: Center(child: Text('Error: ${snapshot.error}')),
                   );
                 }
 

@@ -41,9 +41,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _updateProfile() async {
     if (nameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama tidak boleh kosong')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nama tidak boleh kosong')));
       return;
     }
 
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final user = authService.currentUser;
-      
+
       if (user == null) {
         throw Exception('User tidak ditemukan');
       }
@@ -86,9 +86,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui profil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui profil: $e')));
       }
     } finally {
       if (mounted) {
@@ -119,13 +119,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 10,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'My Profile',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.logout, color: Colors.red),
@@ -145,11 +151,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: profileImagePath != null
-                        ? FileImage(File(profileImagePath!))
-                        : (currentPhotoUrl != null
-                            ? NetworkImage(currentPhotoUrl) as ImageProvider
-                            : const NetworkImage('https://placekitten.com/200/200') as ImageProvider),
+                    backgroundImage:
+                        profileImagePath != null
+                            ? FileImage(File(profileImagePath!))
+                            : (currentPhotoUrl != null
+                                ? NetworkImage(currentPhotoUrl) as ImageProvider
+                                : const NetworkImage(
+                                      'https://placekitten.com/200/200',
+                                    )
+                                    as ImageProvider),
                   ),
                   Positioned(
                     bottom: 0,
@@ -169,28 +179,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
               // Name Field
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 4,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF5D42D1)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF5D42D1),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xFF5D42D1), width: 2),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF5D42D1),
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -200,23 +224,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               // Email Field
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 8,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Email',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: emailController,
                       enabled: false,
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.grey, width: 2),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -230,22 +266,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
+                    iconColor: Colors.white,
                     minimumSize: const Size.fromHeight(48),
                     backgroundColor: const Color(0xFF5D42D1),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                   onPressed: isLoading ? null : _updateProfile,
-                  icon: isLoading 
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(Icons.edit, size: 18),
-                  label: Text(isLoading ? 'Memperbarui...' : 'Edit Profile'),
+                  icon:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          : const Icon(Icons.edit, size: 18),
+                  label: Text(
+                    isLoading ? 'Memperbarui...' : 'Edit Profile',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],

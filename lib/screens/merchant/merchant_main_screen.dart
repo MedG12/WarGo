@@ -16,8 +16,10 @@ class MerchantMainScreen extends StatefulWidget {
 class _MerchantMainScreenState extends State<MerchantMainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    MerchantDashboardScreen(), // Tab Home (Dashboard)
+  List<Widget> get _widgetOptions => [
+    MerchantDashboardScreen(
+      onNavigateToProfile: () => _onItemTapped(3),
+    ), // Tab Home (Dashboard)
     MapScreen(),
     ChatsScreen(),
     MerchantProfileScreen(), // Tab Profile
@@ -44,31 +46,34 @@ class _MerchantMainScreenState extends State<MerchantMainScreen> {
         // Tampilkan dialog konfirmasi sebelum keluar
         final shouldPop = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Keluar Aplikasi'),
-            content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Tidak'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Keluar Aplikasi'),
+                content: const Text(
+                  'Apakah Anda yakin ingin keluar dari aplikasi?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Tidak'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Ya'),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Ya'),
-              ),
-            ],
-          ),
         );
         return shouldPop ?? false;
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _widgetOptions,
-        ),
+        body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled),
+              label: 'Home',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.map_outlined),
               label: 'Maps',
