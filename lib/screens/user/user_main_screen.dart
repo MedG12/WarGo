@@ -1,28 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/screens/map_screen.dart';
 import 'package:wargo/screens/user/chats_screen.dart';
 import 'package:wargo/screens/user/home.dart';
 import 'package:wargo/screens/user/profile_screen.dart';
-import 'package:wargo/services/auth_service.dart';
+// import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
 import 'package:wargo/widgets/navItem.dart';
 import 'package:wargo/widgets/navItemProfile.dart';
 
 class UserMainScreen extends StatefulWidget {
-  const UserMainScreen({Key? key}) : super(key: key);
+  final int preferredIndex;
+  final LatLng? merchantLocation;
+  const UserMainScreen({
+    Key? key,
+    this.preferredIndex = 0,
+    this.merchantLocation,
+  }) : super(key: key);
 
   @override
   State<UserMainScreen> createState() => _UserMainScreenState();
 }
 
 class _UserMainScreenState extends State<UserMainScreen> {
-  int _currentIndex = 0;
-  final PageController _pageController = PageController();
+  late int _currentIndex;
+  late final PageController _pageController; // 1. Deklarasikan di sini
 
   @override
   void initState() {
     super.initState();
+
+    _currentIndex = widget.preferredIndex;
+    _pageController = PageController(initialPage: _currentIndex);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LocationService>(context, listen: false).loadCachedLocation();
       Provider.of<LocationService>(context, listen: false).fetchLocation();
@@ -37,7 +48,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
+    print("Merchant Location: ${widget.merchantLocation}");
     return Scaffold(
       body: SafeArea(
         child: PageView(
@@ -48,7 +59,12 @@ class _UserMainScreenState extends State<UserMainScreen> {
               _currentIndex = index;
             });
           },
-          children: [HomeScreen(), MapScreen(), ChatsScreen(), ProfileScreen()],
+          children: [
+            HomeScreen(),
+            MapScreen(initialLocation: widget.merchantLocation),
+            ChatsScreen(),
+            ProfileScreen(),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

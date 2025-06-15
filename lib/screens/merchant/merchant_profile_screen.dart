@@ -237,19 +237,25 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final user = authService.currentUser;
+    final displayName = user?.displayName ?? 'Merchant';
+
+    String getInitials(String name) {
+      if (name.isEmpty) return "?";
+
+      List<String> names = name.split(' ');
+      if (names.length == 1) return names[0][0].toUpperCase();
+
+      return '${names[0][0]}${names[names.length - 1][0]}'.toUpperCase();
+    }
+
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context, false);
         return false;
       },
       child: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Edit Profil Merchant'),
-        //   leading: IconButton(
-        //     icon: const Icon(Icons.arrow_back),
-        //     onPressed: () => Navigator.pop(context, false),
-        //   ),
-        // ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -277,11 +283,6 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                             context,
                             listen: false,
                           ).signOut();
-                          if (mounted) {
-                            Navigator.of(
-                              context,
-                            ).pushReplacementNamed('/login');
-                          }
                         },
                       ),
                     ],
@@ -291,26 +292,23 @@ class _MerchantProfileScreenState extends State<MerchantProfileScreen> {
                 // Profile Photo
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          profileImagePath != null
-                              ? FileImage(File(profileImagePath!))
-                              : (Provider.of<AuthService>(
-                                        context,
-                                      ).currentUser?.photoURL !=
-                                      null
-                                  ? NetworkImage(
-                                        Provider.of<AuthService>(
-                                          context,
-                                        ).currentUser!.photoURL!,
-                                      )
-                                      as ImageProvider
-                                  : const NetworkImage(
-                                        'https://placekitten.com/200/200',
-                                      )
-                                      as ImageProvider),
-                    ),
+                    profileImagePath != null
+                        ? CircleAvatar(
+                          radius: 50,
+                          backgroundImage: FileImage(File(profileImagePath!)),
+                        )
+                        : CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.blueAccent,
+                          child: Text(
+                            getInitials(displayName),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                     Positioned(
                       bottom: 0,
                       right: 0,

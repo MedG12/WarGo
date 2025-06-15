@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wargo/models/merchant.dart';
 import 'package:wargo/models/merchant/merchant_model.dart';
@@ -56,13 +58,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String? currentCity = context.watch<LocationService>().currentCity;
+    final locationService = Provider.of<LocationService>(context);
+    String? currentCity = locationService.currentCity;
+    final userLocation = locationService.getCurrentPosition();
+
 
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
+              automaticallyImplyLeading: false,
               expandedHeight: 250, // Tinggi gambar
               backgroundColor: Colors.transparent,
               floating: false,
@@ -168,34 +174,78 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                return SliverFillRemaining(
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                    child: Container(
-                      color: Colors.white,
-                      child: ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        itemCount: filteredMerchants.length,
-                        itemBuilder: (context, index) {
-                          final merchant = filteredMerchants[index];
-                          return sellerCard(
-                            context,
-                            Merchant(
-                              id: merchant.uid,
-                              name: merchant.name,
-                              description: merchant.description,
-                              imagePath: merchant.photoUrl,
-                              distance: '2.3km',
-                              openHours: merchant.openHours,
-                            ),
+                return StreamBuilder<Map<String, LatLng>>(
+                  stream: locationService.getActiveLocations(),
+                  builder: (context, snapshot) {
+                    final activeMerchants = snapshot.data ?? {};
+                    return FutureBuilder<Position>(
+                      future: userLocation,
+                      builder: (context, userLocationSnapshot) {
+                        if (userLocationSnapshot.connectionState !=
+                            ConnectionState.done) {
+                          return const SliverFillRemaining(
+                            child: Center(child: CircularProgressIndicator()),
                           );
-                        },
-                      ),
-                    ),
-                  ),
+                        }
+
+                        final userPos = userLocationSnapshot.data;
+
+                        return SliverFillRemaining(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                            child: Container(
+                              color: Colors.white,
+                              child: ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                itemCount: filteredMerchants.length,
+                                itemBuilder: (context, index) {
+                                  final merchant = filteredMerchants[index];
+                                  String distanceText = 'N/A';
+
+                                  if (activeMerchants.containsKey(
+                                        merchant.uid,
+                                      ) &&
+                                      userPos != null) {
+                                    final location =
+                                        activeMerchants[merchant.uid];
+                                    if (location != null) {
+                                      final distance =
+                                          Geolocator.distanceBetween(
+                                            userPos.latitude,
+                                            userPos.longitude,
+                                            location.latitude,
+                                            location.longitude,
+                                          ) /
+                                          1000;
+                                      distanceText =
+                                          '${distance.toStringAsFixed(1)} km';
+                                    }
+                                  }
+                                  return sellerCard(
+                                    context,
+                                    Merchant(
+                                      id: merchant.uid,
+                                      name: merchant.name,
+                                      description: merchant.description,
+                                      imagePath: merchant.photoUrl,
+                                      distance: distanceText,
+                                      openHours: merchant.openHours,
+                                      location: activeMerchants[merchant.uid],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 );
               },
             ),

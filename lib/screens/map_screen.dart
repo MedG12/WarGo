@@ -10,7 +10,8 @@ import 'package:wargo/services/notification_service.dart';
 import 'package:wargo/widgets/MerchantMarker.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  final LatLng? initialLocation;
+  const MapScreen({Key? key, this.initialLocation}) : super(key: key);
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -118,7 +119,7 @@ class _MapScreenState extends State<MapScreen> {
         );
 
         return StreamBuilder<List<Merchant>>(
-          stream: locationService.getAllMerchants(),
+          stream: locationService.getLiveMerchants(),
           builder: (context, snapshot) {
             final markers = <Marker>[
               if (!isMerchant)
@@ -168,10 +169,14 @@ class _MapScreenState extends State<MapScreen> {
                 }
               }
             }
+            print('widget.initialLocation: ${widget.initialLocation}');
             return Scaffold(
               body: FlutterMap(
                 mapController: mapController,
-                options: MapOptions(initialCenter: userLatLng, initialZoom: 18),
+                options: MapOptions(
+                  initialCenter: widget.initialLocation ?? userLatLng,
+                  initialZoom: 18,
+                ),
                 children: [
                   TileLayer(
                     urlTemplate:

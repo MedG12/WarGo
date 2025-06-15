@@ -39,6 +39,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String getInitials(String name) {
+    if (name.isEmpty) return "?";
+
+    List<String> names = name.split(' ');
+    if (names.length == 1) return names[0][0].toUpperCase();
+
+    return '${names[0][0]}${names[names.length - 1][0]}'.toUpperCase();
+  }
+
   Future<void> _updateProfile() async {
     if (nameController.text.isEmpty) {
       ScaffoldMessenger.of(
@@ -137,9 +146,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: const Icon(Icons.logout, color: Colors.red),
                       onPressed: () async {
                         await authService.signOut();
-                        if (mounted) {
-                          Navigator.of(context).pushReplacementNamed('/login');
-                        }
                       },
                     ),
                   ],
@@ -154,12 +160,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     backgroundImage:
                         profileImagePath != null
                             ? FileImage(File(profileImagePath!))
-                            : (currentPhotoUrl != null
-                                ? NetworkImage(currentPhotoUrl) as ImageProvider
-                                : const NetworkImage(
-                                      'https://placekitten.com/200/200',
+                            : (Provider.of<AuthService>(
+                                      context,
+                                    ).currentUser?.photoURL !=
+                                    null
+                                ? NetworkImage(
+                                      Provider.of<AuthService>(
+                                        context,
+                                      ).currentUser!.photoURL!,
                                     )
-                                    as ImageProvider),
+                                    as ImageProvider
+                                : null),
+                    child:
+                        profileImagePath == null &&
+                                Provider.of<AuthService>(
+                                      context,
+                                    ).currentUser?.photoURL ==
+                                    null
+                            ? Text(
+                              getInitials(user?.displayName ?? ''),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                            : null, // Jangan tampilkan child jika ada gambar
                   ),
                   Positioned(
                     bottom: 0,

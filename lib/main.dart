@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:wargo/providers/navigationState.dart';
 
 import 'package:wargo/services/auth_service.dart';
 import 'package:wargo/services/location_service.dart';
@@ -26,7 +27,7 @@ void main() async {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Zmh2cGJlcWFoY2F5dHNnY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MzQ0NzIsImV4cCI6MjA2NDQxMDQ3Mn0.90biNLFG4pHgty37B63cXp8BS7FMH-rnaaQKSCqprCE',
   );
   //uncomment untuk auto logout
-  await FirebaseAuth.instance.signOut();
+  // await FirebaseAuth.instance.signOut();
 
   runApp(const MyApp());
 }
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => LocationService()),
+        ChangeNotifierProvider(create: (_) => NavigationState()),
         Provider(create: (_) => MerchantService()),
       ],
       child: MaterialApp(
@@ -94,48 +96,3 @@ class AuthWrapper extends StatelessWidget {
   }
 }
 
-class HomeMerchScreen extends StatelessWidget {
-  const HomeMerchScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUser;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Merchant'),
-        backgroundColor: const Color(0xFF0E2148),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => authService.signOut(),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome!', style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 16),
-            Text(
-              'Hello ${user?.displayName ?? user?.email ?? 'User'}',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => authService.signOut(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF483AA0),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

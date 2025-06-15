@@ -4,13 +4,11 @@ import 'package:wargo/screens/user/detail_screen.dart';
 
 Widget sellerCard(BuildContext context, Merchant seller) {
   return GestureDetector(
-    onTap: () {
+    onTap: () async{
       // Navigate to detail screen
-      Navigator.push(
+       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => DetailScreen(merchant: seller),
-        ),
+        MaterialPageRoute(builder: (context) => DetailScreen(merchant: seller)),
       );
     },
     child: Container(
@@ -36,11 +34,12 @@ Widget sellerCard(BuildContext context, Merchant seller) {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: (seller.imagePath != null &&
-                        (seller.imagePath!.startsWith('http') ||
-                            seller.imagePath!.startsWith('https')))
-                    ? NetworkImage(seller.imagePath!) as ImageProvider
-                    : const AssetImage('assets/images/placeholder.png'),
+                image:
+                    (seller.imagePath != null &&
+                            (seller.imagePath!.startsWith('http') ||
+                                seller.imagePath!.startsWith('https')))
+                        ? NetworkImage(seller.imagePath!) as ImageProvider
+                        : const AssetImage('assets/images/placeholder.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -63,10 +62,7 @@ Widget sellerCard(BuildContext context, Merchant seller) {
                 const SizedBox(height: 4),
                 Text(
                   seller.description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -86,31 +82,30 @@ Widget sellerCard(BuildContext context, Merchant seller) {
           // Distance and arrow
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.orange,
-                    size: 16,
+              seller.distance == 'N/A'
+                  ? Text('offline', style: TextStyle(color: Colors.grey))
+                  : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.orange,
+                        size: 16,
+                      ),
+                      Text(
+                        seller.distance!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    seller.distance ?? 'Jarak tidak diketahui',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 8),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
-              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
             ],
           ),
         ],

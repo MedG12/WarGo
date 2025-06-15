@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wargo/models/merchant.dart';
 
@@ -136,7 +137,26 @@ class LocationService extends ChangeNotifier {
     }
   }
 
-  Stream<List<Merchant>> getAllMerchants() {
+  Stream<Map<String, LatLng>> getActiveLocations() {
+    return _dbRef
+        .child('locations')
+        .orderByChild('timestamp')
+        .startAt(
+          DateTime.now().subtract(Duration(minutes: 30)).millisecondsSinceEpoch,
+        )
+        .onValue
+        .map((event) {
+          final Map<dynamic, dynamic>? data = event.snapshot.value as Map?;
+          if (data == null) return {};
+
+          return data.map(
+            (userId, locData) =>
+                MapEntry(userId, LatLng(locData['lat'], locData['lng'])),
+          );
+        });
+  }
+
+  Stream<List<Merchant>> getLiveMerchants() {
     return _dbRef
         .child("locations")
         .orderByChild('timestamp')
@@ -183,6 +203,24 @@ class LocationService extends ChangeNotifier {
           print('Fetched ${merchants.length} merchants');
           return merchants;
         });
+  }
+
+  Future<double> getRouteDistance(LatLng start, LatLng end) async {
+    final String osrmBaseUrl = 'https://router.project-osrm.org/route/v1';
+    final String url =
+        '$osrmBaseUrl/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=false';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return (data['routes'][0]['distance'] / 1000)
+            .toDouble(); // Convert to km
+      }
+    } catch (e) {
+      print('Error calculating route: $e');
+    }
+    return 0.0;
   }
 
   Future<String> getCityNameFromOSM(double lat, double lon) async {
