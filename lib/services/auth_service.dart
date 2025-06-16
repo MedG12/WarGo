@@ -134,11 +134,10 @@ class AuthService extends ChangeNotifier {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
+      _isCreatingUser = true;
       await _auth.signInWithCredential(credential);
 
       final userCredential = await _auth.signInWithCredential(credential);
-      _isCreatingUser = true;
       try {
         await _userService.createUser(
           uid: userCredential.user!.uid,
